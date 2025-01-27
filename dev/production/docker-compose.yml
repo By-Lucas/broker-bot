@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DEBUG: ${DEBUG}
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      DATABASE_HOST: ${DB_HOST}
+      DATABASE_NAME: ${DB_NAME}
+      DATABASE_USER: ${DB_USER}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      DATABASE_PORT: ${DB_PORT}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}  # Agora usando a URL do Render
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      PROD_URL: ${PROD_URL}
+      HML_URL: ${HML_URL}
+      HML_CHAVE_ALEATORIA: ${HML_CHAVE_ALEATORIA}
+      HML_CLIENT_ID: ${HML_CLIENT_ID}
+      HML_CERTIFICATE_PATH: ${HML_CERTIFICATE_PATH}
+      SANDBOX: ${SANDBOX}
+      HML_CERTIFICATE_PATH: ${HML_CERTIFICATE_PATH}
+    ports:
+      - 8000:8000
+    env_file:
+      - .env  # Faz o carregamento das variáveis de ambiente do arquivo .env
+    depends_on:
+      - db
+      - redis
+    command: gunicorn tknexus.wsgi:application --bind 0.0.0.0:8000  # Porta de Bind Gunicorn
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  redis:
+    container_name: tknexus-redis
+    image: redis:alpine
+    command: redis-server --appendonly yes --replica-read-only no
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    ports:
+      - 6379:6379
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  app-network:

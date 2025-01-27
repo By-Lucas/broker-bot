@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/app:cached
+     #- "/home/lucas/Área de trabalho/TK Global Technology/ApiBuildKit/:/links/APIBuilderKit:cached"
+
+    command: sleep infinity
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - postgres.env
+    network_mode: service:app
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: broker-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Porta de gerenciamento
+    networks:
+      - app-network
+    environment:
+      RABBITMQ_DEFAULT_USER: "broker@gmail.com"
+      RABBITMQ_DEFAULT_PASS: "broker2024"
+
+  redis:
+    container_name: broker-redis
+    image: redis:alpine
+    command: redis-server --appendonly yes --replica-read-only no
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    ports:
+      - 6379:6379
+  
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  redis-data:
+
+networks:
+  app-network:

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DEBUG: ${DEBUG}
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
+      DATABASE_HOST: ${DB_HOST}
+      DATABASE_NAME: ${DB_NAME}
+      DATABASE_USER: ${DB_USER}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      DATABASE_PORT: ${DB_PORT}
+      DATABASE_SCHEMA: ${SCHEMA_DB}
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:  ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes --replica-read-only no
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    ports:
+      - 6379:6379
+    
+  # celery:
+  #   build: .
+  #   command: celery -A broker_bot_hub worker --loglevel=info
+  #   depends_on:
+  #     - redis
+  #     - app
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - DJANGO_SETTINGS_MODULE=broker_bot_hub.settings
+  #   networks:
+  #     - app-network
+
+  # celery-beat:
+  #   build: .
+  #   command: celery -A broker_bot_hub beat --loglevel=info
+  #   depends_on:
+  #     - redis
+  #     - app
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - DJANGO_SETTINGS_MODULE=broker_bot_hub.settings
+  #   networks:
+  #     - app-network
+
+    
+volumes:
+  postgres-data:
+  redis-data:
+  
+networks:
+  app-network:
+    driver: bridge
+  

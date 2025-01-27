@@ -1,0 +1,32 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Services",
+      "type": "shell",
+      "command": "docker compose -f .devcontainer/docker-compose.yml up"
+    },
+    {
+      "label": "Django",
+      "type": "shell",
+      "command": "python manage.py runserver 0.0.0.0:8000"
+    },
+    {
+      "label": "Celery",
+      "type": "shell",
+      "command": "export C_FORCE_ROOT=1 && export PYTHONPATH=\"$PWD/src:$PWD/libs\" && celery -A tknexus worker -l info"
+    },
+    {
+      "label": "Celery Beat",
+      "type": "shell",
+      "command": "export C_FORCE_ROOT=1 && export PYTHONPATH=\"$PWD/src:$PWD/libs\" && celery -A tknexus beat -l info"
+    },
+    {
+      "label": "Grunt",
+      "type": "shell",
+      "command": "cd src/shoppub/static/assets/front && ./node_modules/grunt/bin/grunt"
+    }
+  ]
+}

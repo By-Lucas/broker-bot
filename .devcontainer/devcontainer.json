@@ -1,0 +1,36 @@
+{
+    "name": "Broker Bot",
+    "dockerComposeFile": "./docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/app",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "os-provided"
+        }
+    },
+    "forwardPorts": [
+        8000,
+        5432,
+        5672,
+        6380,
+        6379,
+        15672
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "mhutchie.git-graph",
+                "eamodio.gitlens"
+            ]
+        }
+    },
+    "remoteUser": "root" // ou "app" se preferir usar esse usuário
+    // "mounts": [
+    //     "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached" // Para o usuário root
+    // ]
+    //"postCreateCommand": "rm -rf APIBuilderKit && git clone git@github.com:By-Lucas/APIBuilderKit.git APIBuilderKit"
+}

@@ -1,0 +1,5 @@
+- LINUX E GITBASH
+ln -s "/links/APIBuilderKit" "APIBuilderKit"
+
+- WINDOWS (CMD)
+MKLINK /D \APIBuilderKit "D:\4 Projetos Empregos\4 Charisma\1 Clipping v2\APIBuilderKit"
