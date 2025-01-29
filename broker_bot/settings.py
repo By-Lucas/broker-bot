@@ -44,6 +44,7 @@ PROJECT_APPS = [
     "bots",
     "trading",
     "customer",
+    "quotexapi",
     "integrations",
 ]
 

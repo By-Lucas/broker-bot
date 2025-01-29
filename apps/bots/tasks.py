@@ -6,8 +6,9 @@ from django.utils import timezone
 
 from trading.models import TradeOrder
 from bots.constants import PARITIES
-from bots.quotex_management import QuotexManagement
-from integrations.models import Quotex
+from bots.quotex_management import QuotexManagement as BaseQuotex
+from integrations.models import Quotex, QuotexManagement
+
 
 
 @shared_task
@@ -22,7 +23,7 @@ def verify_and_update_quotex(quotex_id):
         return {"error": f"Quotex ID {quotex_id} não encontrado."}
 
     # Inicializa o bot manager com as credenciais do cliente
-    manager = QuotexManagement(
+    manager = BaseQuotex(
         email=quotex.email,
         password=quotex.password,
         account_type=quotex.account_type
@@ -91,33 +92,58 @@ def verify_and_update_quotex(quotex_id):
 
 
 @shared_task
+def execute_random_trade(quotex_id, data):
+    """
+    Executa uma entrada (trade) para uma única conta Quotex,
+    usando QuotexManagement.
+    """
+    # Obter a instância do Quotex
+    qx = Quotex.objects.get(id=quotex_id)
+
+    # Criar o gerenciador
+    manager = BaseQuotex(
+        email=qx.email,
+        password=qx.password,
+        account_type=qx.account_type
+    )
+
+    # Executar a operação
+    status_buy, info_buy = asyncio.run(manager.buy_sell(data))
+    # Se quiser, faça logs ou retorne algo
+    # Ex.: registrar no Django admin, etc.
+    # return {
+    #     "email": qx.email,
+    #     "status_buy": status_buy,
+    #     "info_buy": info_buy
+    # }
+
+
+@shared_task
 def schedule_random_trades():
     """
-    Tarefa que roda a cada 5 minutos (configurar no Celery Beat).
-    Seleciona 20 usuários (ou corretores) por vez e executa
-    ordens de buy/sell aleatórias.
+    A cada ciclo (ex.: 5 minutos via Celery Beat), seleciona 20 usuários de cada vez
+    e agenda trades independentes para cada conta Quotex.
     """
-    # 1. Buscar contas ativas
-    quotex_accounts = Quotex.objects.filter(is_active=True)
 
-    # 2. Dividir em lotes (chunks) de 20
     chunk_size = 20
+    quotex_accounts = Quotex.objects.filter(is_active=True)
     total = quotex_accounts.count()
+
+    
+
+    PARITIES = ["EURUSD", "GBPUSD", "AUDUSD", "USDCAD"]  # Exemplo
+
     for start in range(0, total, chunk_size):
         batch = quotex_accounts[start : start + chunk_size]
         for qx in batch:
-            manager = QuotexManagement(
-                email=qx.email,
-                password=qx.password,
-                account_type=qx.account_type
-            )
-
-            # 3. Escolher dados aleatórios
+            management = QuotexManagement.objects.filter(customer=qx.customer).first()
+            # 1. Escolher dados aleatórios
             asset = random.choice(PARITIES)
-            direction = random.choice(["call", "put"])  # ou "BUY"/"SELL" dependendo da API
-            duration = 60  # Exemplo: de 1 a 5 minutos
-            amount = 5 # valor fixo ou também pode ser aleatório
+            direction = random.choice(["call", "put"])
+            duration = 60
+            amount = float(management.entry_value)
 
+            # 2. Montar o dicionário de parâmetros
             data = {
                 "amount": amount,
                 "asset": asset,
@@ -128,11 +154,12 @@ def schedule_random_trades():
                 "broker_id": qx.id,
             }
 
-            # 4. Chamar o método buy_sell
-            status_buy, info_buy = asyncio.run(manager.buy_sell(data))
-            #print(f"[{qx.email}] -> status: {status_buy}, info: {info_buy}")
+            # 3. Em vez de rodar local, chamamos a subtask
+            #    cada trade será uma task Celery distinta
+            execute_random_trade.delay(qx.id, data)
 
-    return "Tarefa concluída com sucesso!"
+    return f"{total} trades agendados com sucesso!"
+
 
 
 @shared_task
@@ -163,7 +190,7 @@ def check_trade_status_task(trade_order_id):
     password = broker_obj.password
     account_type = broker_obj.account_type
 
-    manager = QuotexManagement(email, password, account_type)
+    manager = BaseQuotex(email, password, account_type)
 
     # Faz a verificação de forma assíncrona:
     status = asyncio.run(manager.verify_trader(trader_id))

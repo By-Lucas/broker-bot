@@ -21,6 +21,7 @@ class TradeOrder(models.Model):
     broker = GenericForeignKey("content_type", "object_id")
 
     # Dados básicos
+    asset_order = models.CharField(max_length=15, null=True, blank=True, verbose_name="Par de moeda")
     order_type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES, verbose_name="Tipo de Ordem")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor da Ordem")
 

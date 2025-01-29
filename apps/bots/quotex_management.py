@@ -2,9 +2,12 @@ import json
 import os
 import asyncio
 from asgiref.sync import sync_to_async
+
 from quotexapi.stable_api import Quotex
 from .constants import CUSTOM_PARITIES, PARITIES
 
+
+from bots.utils import wait_until_second
 from bots.services import create_trade_order_sync
 
 
@@ -126,39 +129,32 @@ class QuotexManagement:
         if asset_open and asset_open[2]:
             asset = asset_name
 
+        await wait_until_second(59)
+
         for attempt in range(1, retries + 1):
             try:
                 status_buy, info_buy = await self.client.buy(amount=amount, asset=asset, direction=direction, duration=duration)
                 if status_buy:
-                    trader_id = info_buy["id"]
-                    
-                    # Depois que receber info_buy, chama a função create_trade_order
-                    trader = await sync_to_async(create_trade_order_sync)(status_buy, info_buy, data)
-                    trader_status = await self.client.check_win(id_number=trader_id)
-                    if trader_status:
-                        trader_profit = self.client.get_profit()
-                        if trader_profit > 0:
-                            trader.order_result_status = "WIN"
-                        elif trader_profit < 0:
-                            trader.order_result_status = "LOSS"
-                        else:
-                            trader.order_result_status = "DOGI"
 
-                        await sync_to_async(trader.save)()
+                    # Depois que receber info_buy, chama a função create_trade_order
+                    #trader = await sync_to_async(create_trade_order_sync)(status_buy, asset, info_buy, data)
+                    # trader_status = await self.client.check_win(id_number=trader_id)
+                    # if trader_status:
+                    #     trader_profit = self.client.get_profit()
+                    #     if trader_profit > 0:
+                    #         trader.order_result_status = "WIN"
+                    #     elif trader_profit < 0:
+                    #         trader.order_result_status = "LOSS"
+                    #     else:
+                    #         trader.order_result_status = "DOGI"
+
+                    #     await sync_to_async(trader.save)()
                     return status_buy, info_buy
             except Exception as e:
                 print(f"Erro ao fazer trader, executando novamente na tentativa {attempt} para o usuário {email}: {e}")
 
         await self.client.close()
         return None, {}
-
-    def load_from_json(self):
-        """Carrega o dicionário de um arquivo JSON, se existir."""
-        if os.path.exists(self.json_file_path):
-            with open(self.json_file_path, "r", encoding="utf-8") as f:
-                self.listinfodata_dict = json.load(f)
-        else:
-            self.listinfodata_dict = {}
 
     async def verify_trader(self, trader_id: str):
         """
@@ -170,18 +166,17 @@ class QuotexManagement:
             # Tenta chamar check_win no client
             result = await self.client.check_win(id_number=trader_id)
             status["status"] = result
-            status["profit"] = self.client.get_profit()
+            status["profit"] = self.client.get_profit() or self.listinfodata_dict.get(trader_id).get("profit", 0)
         except AttributeError:
             # Se o client falhar, tenta pegar do dicionário local (listinfodata_dict)
             status["status"] = self.listinfodata_dict.get(trader_id)
-            status["profit"] = self.listinfodata_dict.get(trader_id).get("profit")
+            status["profit"] = self.listinfodata_dict.get(trader_id).get("profit", 0)
         except Exception as e:
             status["status"] = False
-            status["status"] = None
-
+            status["profit"] = 0
+        
         # Fecha a conexão se estiver aberta
         if self.client.check_connect():
             await self.client.close()
         
-        print(status)
         return status

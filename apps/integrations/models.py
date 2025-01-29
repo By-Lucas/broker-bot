@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.utils.text import slugify
 from customer.models import Customer
@@ -69,6 +70,17 @@ class Quotex(models.Model):
         if not self.slug:
             self.slug = slugify(f"{self.customer.email}-{self.trader_id}")
         super().save(*args, **kwargs)
+    
+    def add_profit(self, profit: Decimal):
+        """
+        Atualiza o saldo da conta de acordo com o account_type.
+        """
+        if self.account_type == "PRACTICE":
+            self.demo_balance += profit
+        else:
+            self.real_balance += profit
+
+        self.save()
 
 
 class QuotexManagement(models.Model):

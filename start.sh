@@ -1,6 +1,8 @@
 #!/bin/bash
 
-pip install -r requirements-dev.txt
+# Purga as filas do Celery
+echo "Purging Celery tasks..."
+celery -A broker_bot purge -f
 
 # Inicializa o Celery Worker no background
 echo "Starting Celery worker..."
