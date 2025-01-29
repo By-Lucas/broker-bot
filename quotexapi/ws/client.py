@@ -4,7 +4,6 @@ import json
 import time
 import logging
 import websocket
-from threading import Lock
 
 from bots.services import create_trade_order_sync
 from trading.models import TradeOrder
@@ -43,9 +42,6 @@ class WebsocketClient(object):
             header=self.headers,
             # cookie=self.api.cookies
         )
-
-        self.processed_orders = set()  # Conjunto para armazenar IDs já processados
-        self.lock = Lock()  # Evita concorrência no processamento das ordens
 
     def on_message(self, wss, message):
         """Method to process websocket messages."""
@@ -97,6 +93,7 @@ class WebsocketClient(object):
                     self.api.buy_successful = message
                     self.api.buy_id = message["id"]
                     self.api.candle_close_timestamp = message.get("closeTimestamp")
+                    
                     if not TradeOrder.objects.filter(id_trade=self.api.buy_id).exists():
                         create_trade_order_sync(True, message["asset"], message)
                 elif message.get("ticket"):
