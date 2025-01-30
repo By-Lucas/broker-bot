@@ -71,10 +71,14 @@ class Quotex(models.Model):
             self.slug = slugify(f"{self.customer.email}-{self.trader_id}")
         super().save(*args, **kwargs)
     
-    def add_profit(self, profit: Decimal):
+    
+    def add_profit(self, profit):
         """
         Atualiza o saldo da conta de acordo com o account_type.
+        Garante que o valor seja tratado como Decimal.
         """
+        profit = Decimal(str(profit))  # Converte para Decimal
+
         if self.account_type == "PRACTICE":
             self.demo_balance += profit
         else:
@@ -84,6 +88,13 @@ class Quotex(models.Model):
 
 
 class QuotexManagement(models.Model):
+    MANAGEMENT_TYPE_CHOICES = [
+        ("CONSERVADOR", "Conservador"),
+        ("MODERADO", "Moderado"),
+        ("ALAVANCAGEM", "Alavancagem"),
+        ("PERSONALIZADO", "Personalizado"),
+    ]
+
     STOP_LOSS_CHOICES = [
         ("MODERADO", "Moderado"),
         ("AGRESSIVO", "Agressivo"),
@@ -96,6 +107,14 @@ class QuotexManagement(models.Model):
         related_name="quotex_management",
         verbose_name="Cliente"
     )
+
+    management_type = models.CharField(
+        max_length=15,
+        choices=MANAGEMENT_TYPE_CHOICES,
+        default="PERSONALIZADO",
+        verbose_name="Tipo de Gerenciamento"
+    )
+
     stop_gain = models.DecimalField(
         default=30,
         max_digits=10,
@@ -138,6 +157,7 @@ class QuotexManagement(models.Model):
         verbose_name="Fator Multiplicador Martingale",
         help_text="Valor multiplicador dos martingales permitidos."
     )
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Criação")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Última Atualização")
 
@@ -149,4 +169,44 @@ class QuotexManagement(models.Model):
     def __str__(self):
         return f"Gerenciamento para {self.customer.email}"
     
-    
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+    def apply_management_profile(self):
+        """
+        Aplica automaticamente os parâmetros do gerenciamento com base no perfil escolhido.
+        Calcula entry_value, stop_gain e stop_loss como porcentagens da banca.
+        """
+
+        # Perfis predefinidos (em %)
+        management_profiles = {
+            "CONSERVADOR": {"entry_value": 4, "stop_gain": 8, "stop_loss": 100},
+            "MODERADO": {"entry_value": 5, "stop_gain": 12, "stop_loss": 100},
+            "ALAVANCAGEM": {"entry_value": 10, "stop_gain": 25, "stop_loss": 100},
+            "PERSONALIZADO": {}  # Deixa os valores manuais
+        }
+
+        # Obtém o perfil selecionado
+        profile = management_profiles.get(self.management_type, {})
+
+        # Obtém a conta Quotex do cliente
+        quotex_account = self.customer.quotex_account
+        if not quotex_account:
+            return  # Se não houver conta, não faz nada
+
+        # Obtém a moeda do cliente e saldo disponível
+        currency = quotex_account.currency_symbol  # Ex: "R$" ou "US$"
+        balance = quotex_account.real_balance if quotex_account.account_type == "REAL" else quotex_account.demo_balance
+
+        # Converte os valores percentuais para valores reais
+        for field, percentage in profile.items():
+            if percentage:
+                setattr(self, field, Decimal(balance) * Decimal(percentage) / Decimal(100))
+
+        # Valida o valor mínimo de entrada
+        min_entry_value = Decimal("5") if currency == "R$" else Decimal("1")
+        if self.entry_value < min_entry_value:
+            self.entry_value = min_entry_value
+
+        # Salva as alterações
+        self.save()

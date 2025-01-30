@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+
 class Customer(AbstractUser):
     trader_id = models.CharField(max_length=255, unique=True, verbose_name="Trader ID")
     email = models.EmailField(unique=True, verbose_name="Email")  # Certifique-se de que é único

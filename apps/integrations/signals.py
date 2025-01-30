@@ -1,13 +1,14 @@
 # integrations/signals.py
-from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 from .models import Quotex, QuotexManagement
 
 
 @receiver(post_save, sender=Quotex)
 def create_default_management(sender, instance, created, **kwargs):
     if created:
-        QuotexManagement.objects.create(
+        qx = QuotexManagement.objects.create(
             customer=instance.customer,
             stop_gain=30.00,
             stop_loss=30.00,
@@ -16,3 +17,5 @@ def create_default_management(sender, instance, created, **kwargs):
             martingale=2,
             factor_martingale=2
         )
+
+        qx.apply_management_profile()

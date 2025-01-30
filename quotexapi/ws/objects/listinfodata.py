@@ -5,6 +5,8 @@ from quotexapi.ws.objects.base import Base
 
 from trading.models import TradeOrder
 from django.db import transaction
+from django.core.cache import cache
+
 
 
 class ListInfoData(Base):
@@ -15,55 +17,74 @@ class ListInfoData(Base):
         self.__name = "listInfoData"
         self.listinfodata_dict = {}
         self.json_file_path = "list_info_data.json"
+        self.processed_trades = set()  # Lista para armazenar trades já processados
 
     def set(self, win, game_state, id_number, profit=None):
-        # 1. Carrega o dicionário do arquivo para não perder dados antigos
+        """Salva a informação no JSON e adiciona o ID para atualização no banco"""
+
+        # 1. Carrega os dados para evitar perda de informações anteriores
         self.load_from_json()
 
-        # 2. Atualiza o dicionário em memória e salva em JSON (se necessário)
+        # 2. Atualiza o dicionário em memória
         self.listinfodata_dict[id_number] = {
-            "win": win, 
-            "game_state": game_state, 
+            "win": win,
+            "game_state": game_state,
             "profit": profit
         }
+
+        # 3. Salva no arquivo JSON
         self.save_to_json()
 
-        # 4. Atualiza a ordem no banco de dados
+        # 4. Verifica se o ID já foi atualizado para evitar repetições
+        if cache.get(f"processed_trade_{id_number}"):
+            print(f"Trade {id_number} já foi processado. Ignorando atualização.")
+            return
+
+        # 5. Adiciona o ID ao cache por 10 segundos para evitar múltiplas execuções
+        cache.set(f"processed_trade_{id_number}", True, timeout=10)
+
+        # 6. Atualiza no banco de dados
+        self.update_trade_order(id_number, win, profit)
+
+    def update_trade_order(self, id_number, win, profit):
+        """Atualiza a ordem no banco de dados"""
         try:
-            with transaction.atomic():
-                # Bloqueia a linha para evitar concorrência
-                order = TradeOrder.objects.select_for_update().filter(id_trade=id_number).first()
-                if order:
-                    # Define status com base no retorno da API
-                    if win is True:
-                        order.order_result_status = "WIN"
-                    elif win is False:
-                        order.order_result_status = "LOSS"
-                    else:
-                        order.order_result_status = "DOGI"
+            order = TradeOrder.objects.filter(id_trade=id_number).first()
 
-                    # Atualiza o lucro, se existir
-                    if profit is not None:
-                        order.result = profit
-                        order.broker.add_profit(profit)  # Atualiza o saldo no broker
-
-                    # Marca como EXECUTED
-                    order.status = "EXECUTED"
-                    order.save()
-
-                    print(f"Ordem atualizada com sucesso: {order}")
+            if order:
+                if profit is not None and profit > 0:
+                    status = "WIN"
+                elif profit is not None and profit < 0:
+                    status = "LOSS"
                 else:
-                    printg(f"Ordem não encontrada para atualização: {id_number}")
+                    status = "DOGI"
+
+                TradeOrder.objects.filter(id=order.id).update(
+                    order_result_status=status,
+                    result=profit if profit is not None else order.result,
+                    status="EXECUTED"
+                )
+
+                # Atualiza o saldo da corretora
+                if profit is not None:
+                    order.broker.add_profit(profit)
+
+                print(f"Ordem atualizada com sucesso: {order.id_trade}")
+            else:
+                print(f"Ordem não encontrada para atualização: {id_number}")
+
         except Exception as e:
             print(f"Erro ao atualizar a ordem {id_number}: {e}")
 
     def delete(self, id_number):
+        """Remove um ID do JSON"""
         self.load_from_json()
         if id_number in self.listinfodata_dict:
             del self.listinfodata_dict[id_number]
             #self.save_to_json()
 
     def get(self, id_number):
+        """Busca o status salvo do trade"""
         self.load_from_json()
         return self.listinfodata_dict.get(id_number)
 
@@ -72,6 +93,7 @@ class ListInfoData(Base):
             json.dump(self.listinfodata_dict, f, ensure_ascii=False, indent=4)
 
     def load_from_json(self):
+        """Carrega os dados do JSON se ele existir"""
         if os.path.exists(self.json_file_path):
             with open(self.json_file_path, "r", encoding="utf-8") as f:
                 self.listinfodata_dict = json.load(f)

@@ -1,102 +1,103 @@
 # bots/tasks.py
 import asyncio
+from decimal import Decimal
 import random
 from celery import shared_task
 from django.utils import timezone
 
+from bots.utils import calculate_entry_amount, is_valid_trader
 from trading.models import TradeOrder
 from bots.constants import PARITIES
 from bots.quotex_management import QuotexManagement as BaseQuotex
 from integrations.models import Quotex, QuotexManagement
 
 
-
 @shared_task
-def verify_and_update_quotex(quotex_id):
+def verify_and_update_quotex(quotex_id=None):
     """
-    Verifica se as credenciais existem/funcionam, atualiza dados de perfil e saldo,
-    e checa condições de saldo mínimo.
+    Verifica credenciais, atualiza perfil e saldo para um único Quotex ou para todos os ativos.
+    Se `quotex_id` for None, atualiza todos os clientes ativos em lotes de 20.
     """
-    try:
-        quotex = Quotex.objects.get(id=quotex_id)
-    except Quotex.DoesNotExist:
-        return {"error": f"Quotex ID {quotex_id} não encontrado."}
+    # 1️⃣ Seleciona as contas a serem atualizadas
+    if quotex_id:
+        quotex_accounts = Quotex.objects.filter(id=quotex_id, is_active=True)
+    else:
+        quotex_accounts = Quotex.objects.filter(is_active=True)
 
-    # Inicializa o bot manager com as credenciais do cliente
-    manager = BaseQuotex(
-        email=quotex.email,
-        password=quotex.password,
-        account_type=quotex.account_type
-    )
+    total_accounts = quotex_accounts.count()
+    chunk_size = 20  # Processar 20 clientes por vez
 
-    # Tenta se conectar e obter dados
-    connected = asyncio.run(manager.send_connect())
-    if not connected:
-        return {"error": f"Não foi possível conectar com Quotex para o usuário {quotex.email}."}
+    for start in range(0, total_accounts, chunk_size):
+        batch = quotex_accounts[start : start + chunk_size]
 
-    profile_data = asyncio.run(manager.get_profile())
-    balance_data = asyncio.run(manager.get_balance())
+        for quotex in batch:
+            try:
+                # ✅ Inicializa o gerenciador da Quotex
+                manager = BaseQuotex(
+                    email=quotex.email,
+                    password=quotex.password,
+                    account_type=quotex.account_type
+                )
 
-    if not profile_data:
-        return {"error": f"Não foi possível obter dados de perfil para {quotex.email}."}
+                # ✅ Testa conexão
+                connected = asyncio.run(manager.send_connect())
+                if not connected:
+                    print(f"Erro ao conectar com {quotex.email}")
+                    continue
 
-    try:
-        # Conversão de string para decimal
-        demo_balance = float(profile_data["demo_balance"])
-        live_balance = float(profile_data["live_balance"])
-        currency_symbol = profile_data["currency_symbol"]
-        country_name = profile_data["country_name"]
-        profile_id = profile_data["profile_id"]
-        avatar = profile_data["avatar"]
+                # ✅ Obtém perfil e saldo
+                profile_data = asyncio.run(manager.get_profile())
+                if not profile_data :
+                    print(f"Erro ao obter dados de {quotex.email}")
+                    continue
 
+                # ✅ Conversão de valores
+                demo_balance = Decimal(str(profile_data["demo_balance"]))
+                real_balance = Decimal(str(profile_data["live_balance"]))
+                currency_symbol = profile_data.get("currency_symbol", "R$")
+                country_name = profile_data.get("country_name", "")
+                profile_id = profile_data.get("profile_id", "")
+                avatar = profile_data.get("avatar", "")
 
-        quotex.trader_id = profile_id
-        quotex.demo_balance = demo_balance
-        quotex.real_balance = live_balance
-        quotex.currency_symbol = currency_symbol
+                # ✅ Atualiza o Quotex no banco de dados
+                quotex.trader_id = profile_id
+                quotex.demo_balance = demo_balance
+                quotex.real_balance = real_balance
+                quotex.currency_symbol = currency_symbol
 
-        # Validação de saldo mínimo
-        if quotex.account_type == "REAL":
-            # Supondo que seja >= 5 (BRL)
-            if live_balance < 5:
-                # Faça algo (ex.: desabilitar a corretora para o cliente)
-                quotex.is_active = False
-        else:
-            # Conta Prática
-            if demo_balance < 1:
-                # Saldo demo muito baixo para operar? 
-                pass  # Defina a regra de negócio
+                # ✅ Valida saldo mínimo para operar
+                if quotex.account_type == "REAL" and real_balance < Decimal("5"):
+                    quotex.is_active = False  # Desativa se saldo for insuficiente
+                elif quotex.account_type == "PRACTICE" and demo_balance < Decimal("1"):
+                    quotex.is_active = False  # Desativa conta prática sem saldo
 
-        quotex.updated_at = timezone.now()
-        quotex.save()
+                quotex.updated_at = timezone.now()
+                quotex.save()
 
-        # Se quiser atualizar também o Customer:
-        customer = quotex.customer
-        customer.country = country_name
-        customer.trader_id = profile_id
-        customer.avatar = avatar
+                # ✅ Atualiza os dados do cliente associado
+                customer = quotex.customer
+                customer.country = country_name
+                customer.trader_id = profile_id
+                customer.avatar = avatar
+                customer.data_callback = profile_data  # Armazena dados do perfil
+                customer.save()
 
-        # Você poderia armazenar o profile_data inteiro em data_callback, se quiser.
-        customer.data_callback = profile_data
-        customer.save()
+                print(f"✅ Quotex atualizado: {quotex.email}")
 
-        return {
-            "status": "success",
-            "profile": profile_data,
-            "balance": balance_data
-        }
-    except KeyError as e:
-        return {"error": f"Chave não encontrada no retorno da API: {str(e)}"}
-    except Exception as e:
-        return {"error": f"Erro ao atualizar dados: {str(e)}"}
+            except KeyError as e:
+                print(f"🚨 Erro de chave ausente: {str(e)}")
+            except Exception as e:
+                print(f"🚨 Erro ao processar {quotex.email}: {str(e)}")
 
+    return {"status": "success", "updated_accounts": total_accounts}
 
 @shared_task
 def execute_random_trade(quotex_id, data):
     """
     Executa uma entrada (trade) para uma única conta Quotex,
-    usando QuotexManagement.
+    considerando o gerenciamento de risco.
     """
+
     # Obter a instância do Quotex
     qx = Quotex.objects.get(id=quotex_id)
 
@@ -109,41 +110,48 @@ def execute_random_trade(quotex_id, data):
 
     # Executar a operação
     status_buy, info_buy = asyncio.run(manager.buy_sell(data))
-    # Se quiser, faça logs ou retorne algo
-    # Ex.: registrar no Django admin, etc.
-    # return {
-    #     "email": qx.email,
-    #     "status_buy": status_buy,
-    #     "info_buy": info_buy
-    # }
+
+    return {
+        "email": qx.email,
+        "status_buy": status_buy,
+        "info_buy": info_buy
+    }
 
 
 @shared_task
 def schedule_random_trades():
     """
-    A cada ciclo (ex.: 5 minutos via Celery Beat), seleciona 20 usuários de cada vez
-    e agenda trades independentes para cada conta Quotex.
+    A cada 20 minutos, agenda trades aleatórios para clientes ativos na Quotex.
+    Processa em lotes de 20 para evitar sobrecarga.
     """
 
-    chunk_size = 20
-    quotex_accounts = Quotex.objects.filter(is_active=True)
+    chunk_size = 20  # Processamos 20 contas por vez
+    quotex_accounts = Quotex.objects.filter(is_active=True, is_bot_active=True)
     total = quotex_accounts.count()
-
-    
-
-    PARITIES = ["EURUSD", "GBPUSD", "AUDUSD", "USDCAD"]  # Exemplo
 
     for start in range(0, total, chunk_size):
         batch = quotex_accounts[start : start + chunk_size]
-        for qx in batch:
-            management = QuotexManagement.objects.filter(customer=qx.customer).first()
-            # 1. Escolher dados aleatórios
-            asset = random.choice(PARITIES)
-            direction = random.choice(["call", "put"])
-            duration = 60
-            amount = float(management.entry_value)
 
-            # 2. Montar o dicionário de parâmetros
+        for qx in batch:
+            # ✅ Verifica se o cliente pode operar
+            qx_manager = QuotexManagement.objects.filter(customer=qx.customer).first()
+
+            if not is_valid_trader(qx, qx_manager):
+                continue  # Ignora clientes que não passaram na validação
+
+            # 🎯 Obter a entrada considerando gerenciamento
+            amount = float(qx_manager.entry_value) or float(5)
+
+            # Escolher um ativo aleatório
+            asset = random.choice(PARITIES)
+
+            # Escolher se será compra ou venda
+            direction = random.choice(["call", "put"])
+
+            # Definir tempo da ordem (exemplo: 60 segundos)
+            duration = 60
+
+            # Montar os parâmetros da ordem
             data = {
                 "amount": amount,
                 "asset": asset,
@@ -152,15 +160,13 @@ def schedule_random_trades():
                 "email": qx.email,
                 "costumer_id": qx.customer.id,
                 "broker_id": qx.id,
+
             }
 
-            # 3. Em vez de rodar local, chamamos a subtask
-            #    cada trade será uma task Celery distinta
+            # Enviar a ordem como uma **task Celery assíncrona**
             execute_random_trade.delay(qx.id, data)
 
     return f"{total} trades agendados com sucesso!"
-
-
 
 @shared_task
 def check_trade_status_task(trade_order_id):

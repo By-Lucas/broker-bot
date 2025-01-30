@@ -6,8 +6,12 @@ from asgiref.sync import sync_to_async
 from quotexapi.stable_api import Quotex
 from .constants import CUSTOM_PARITIES, PARITIES
 
+from integrations.models import QuotexManagement as QuotexManager
+from integrations.models import Quotex as Qx
 
-from bots.utils import wait_until_second
+
+
+from bots.utils import calculate_entry_amount, wait_until_second
 from bots.services import create_trade_order_sync
 
 
@@ -110,51 +114,72 @@ class QuotexManagement:
                     "currency_code": profile.currency_code,
                     "currency_symbol": profile.currency_symbol,
                 }
-                await self.client.close()
                 return profile_data
         await self.client.close()
         return {}
 
 
-    async def buy_sell(self, data:dict, retries=3):
-        amount = data["amount"]
+    async def buy_sell(self, data: dict, retries=3):
+        """
+        Executa um trade na Quotex com base nas regras de gerenciamento.
+        - Calcula o valor da entrada considerando o risco e saldo do cliente.
+        - Aplica recuperação após 3 Loss consecutivos.
+        - Aguarda o momento exato para enviar a ordem.
+        """
+
+        # 📌 Obtém informações básicas do trade
+        email = data["email"]
         asset = data["asset"]
         duration = data["duration"]
         direction = data["direction"]
-        email = data["email"]
+        amount = data["amount"]
+        broker_id = data["broker_id"]
 
+        # 📌 Obtém a conta Quotex do cliente (garante execução segura)
+        qx = await sync_to_async(lambda: Qx.objects.get(id=broker_id))()
+
+        # 📌 Obtém o gerenciamento Quotex do cliente (uso correto de `.first()`)
+        qx_manager = await sync_to_async(lambda: QuotexManager.objects.filter(customer=qx.customer).first())()
+
+        
+        # 📌 Garante que o saldo seja suficiente
+        available_balance = qx.real_balance if qx.account_type == "REAL" else qx.demo_balance
+        if amount > available_balance:
+            print(f"⛔ {email} NÃO TEM SALDO SUFICIENTE! Entrada necessária: {amount}, Saldo: {available_balance}")
+            return None, {}
+
+        # 📌 Conecta à Quotex
         await self.send_connect()
 
+        # 🎯 Valida se o ativo está disponível
         asset_name, asset_open = await self.client.get_available_asset(asset_name=asset, force_open=True)
         if asset_open and asset_open[2]:
             asset = asset_name
 
+        # ⏳ Aguarda o segundo exato para enviar a ordem (delay de 1s)
         await wait_until_second(59)
 
+        # 🔄 Executa até `retries` tentativas em caso de erro
         for attempt in range(1, retries + 1):
             try:
                 status_buy, info_buy = await self.client.buy(amount=amount, asset=asset, direction=direction, duration=duration)
                 if status_buy:
+                    print(f"✅ {email} fez um trade de {amount} em {asset} ({direction.upper()})")
+                    if await self.verify_trader(info_buy["id"]):
+                        # Retorna os dados da compra para serem processados em outra função
+                        return status_buy, info_buy
+                
+                amount = await sync_to_async(calculate_entry_amount)(qx, qx_manager)
+                
+                # 🎯 Obtém o valor da entrada calculado com base no gerenciamento
 
-                    # Depois que receber info_buy, chama a função create_trade_order
-                    #trader = await sync_to_async(create_trade_order_sync)(status_buy, asset, info_buy, data)
-                    # trader_status = await self.client.check_win(id_number=trader_id)
-                    # if trader_status:
-                    #     trader_profit = self.client.get_profit()
-                    #     if trader_profit > 0:
-                    #         trader.order_result_status = "WIN"
-                    #     elif trader_profit < 0:
-                    #         trader.order_result_status = "LOSS"
-                    #     else:
-                    #         trader.order_result_status = "DOGI"
-
-                    #     await sync_to_async(trader.save)()
-                    return status_buy, info_buy
             except Exception as e:
-                print(f"Erro ao fazer trader, executando novamente na tentativa {attempt} para o usuário {email}: {e}")
+                print(f"⚠️ Erro ao fazer trade para {email}, tentativa {attempt}: {e}")
 
+        # Se não conseguir executar, fecha a conexão
         await self.client.close()
         return None, {}
+
 
     async def verify_trader(self, trader_id: str):
         """
