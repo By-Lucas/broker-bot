@@ -5,6 +5,8 @@ from decimal import Decimal
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 
+from .constants import PARITIES
+from trading.models import TradeOrder
 from integrations.models import Quotex, QuotexManagement
 
 
@@ -71,35 +73,67 @@ def is_valid_trader(qx: Quotex, qx_manager:QuotexManagement):
 
 def calculate_entry_amount(qx, qx_manager):
     """
-    Calcula o valor da entrada com base no gerenciamento escolhido.
-    Se houver 3 Loss seguidos, ativa a entrada de recuperação.
+    Calcula o valor da entrada considerando:
+    - Percentual da banca (Stopwin / Stoploss)
+    - Recuperação automática após 3 Loss seguidos
+    - Valor mínimo de entrada (R$5 ou $1)
     """
 
-    # Obtém o saldo da conta do cliente
-    available_balance = qx.real_balance if qx.account_type == "REAL" else qx.demo_balance
+    # 📌 Define a moeda e valor mínimo de entrada
+    min_entry_value = Decimal("5") if qx.currency_symbol == "R$" else Decimal("1")
 
-    # Define a entrada normal
-    base_entry = Decimal(qx_manager.entry_value)
+    # 📌 Obtém saldo da banca conforme o tipo de conta
+    balance = qx.real_balance if qx.account_type == "REAL" else qx.demo_balance
 
-    # Verifica histórico de perdas consecutivas
-    loss_streak = check_loss_streak(qx)
+    # 📌 Obtém o gerenciamento ativo
+    stop_loss = qx_manager.stop_loss
+    stop_win = qx_manager.stop_gain
+    entry_percent = qx_manager.entry_value  # Percentual de entrada
 
-    if loss_streak >= 3:
-        # Calcula o prejuízo acumulado e a entrada de recuperação
-        accumulated_loss = get_accumulated_loss(qx)
-        stop_win = qx_manager.stop_gain
+    # 📌 Calcula entrada baseada no percentual da banca
+    base_entry = (balance * entry_percent) / 100
 
-        recovery_amount = accumulated_loss + stop_win
+    # 📌 Verifica histórico de Loss seguidos
+    recent_trades = TradeOrder.objects.filter(broker=qx).order_by("-created_at")[:3]
+    loss_count = sum(1 for trade in recent_trades if trade.order_result_status == "LOSS")
 
-        # Se o valor for maior que a banca, usa o saldo total disponível
-        entry_amount = min(recovery_amount, available_balance)
-        print(f"⚠️ Ativando recuperação para {qx.email}. Nova entrada: {entry_amount}")
+    if loss_count == 3:
+        # 📌 Aplicar recuperação se houver 3 Loss seguidos
+        total_loss = sum(trade.result for trade in recent_trades if trade.result < 0)
+        recovery_amount = abs(total_loss) + stop_win
+        entry_value = min(recovery_amount, balance)  # Não ultrapassa o saldo
+        print(f"🚨 {qx.email} está em recuperação! Nova entrada: {entry_value}")
     else:
-        entry_amount = base_entry
+        entry_value = base_entry
 
-    # Garante que a entrada não seja menor que o mínimo permitido
-    min_entry = Decimal("5") if qx.currency_symbol == "R$" else Decimal("1")
-    return max(entry_amount, min_entry)
+    # 📌 Garante que a entrada seja no mínimo R$5 ou $1
+    return max(entry_value, min_entry_value)
+
+
+def normalize_parities(raw_parities, payout_min=80):
+    """
+    Normaliza os pares de moedas removendo "(OTC)" e adicionando "_otc" no final se necessário.
+    Filtra os pares com payouts maiores ou iguais ao valor definido.
+    
+    :param raw_parities: Dicionário retornado pela API contendo os pares e payouts.
+    :param payout_min: Percentual mínimo de payout (default é 80%).
+    :return: Dicionário de pares normalizados e seus respectivos payouts.
+    """
+
+    normalized_parities = {}
+
+    for pair, info in raw_parities.items():
+        payout = info.get("payment", 0)
+
+        # Verifica se o payout é maior ou igual ao mínimo
+        if payout >= payout_min:
+            normalized_pair = pair.replace(" (OTC)", "_otc").replace("/", "")  # Converte "USDJPY (OTC)" para "USDJPY_otc"
+            
+            # Mantém apenas os pares que estão na lista definida
+            if normalized_pair.replace("_otc", "") in PARITIES:
+                normalized_parities[normalized_pair] = payout
+
+    return normalized_parities
 
 
 def check_loss_streak(qx):
