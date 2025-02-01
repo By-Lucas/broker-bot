@@ -1,10 +1,13 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+from customer.manager import CustomerManager
+
 
 class Customer(AbstractUser):
+    username = None  # Removendo o username padrão do Django
     trader_id = models.CharField(max_length=255, unique=True, verbose_name="Trader ID")
-    email = models.EmailField(unique=True, verbose_name="Email")  # Certifique-se de que é único
+    email = models.EmailField(unique=True, verbose_name="Email")  # Agora email será o campo de login
     country = models.CharField(null=True, blank=True, max_length=10, verbose_name="País")
     is_active = models.BooleanField(default=True, verbose_name="Ativo")
     avatar = models.URLField(null=True, blank=True, verbose_name="Avatar")
@@ -27,8 +30,10 @@ class Customer(AbstractUser):
         blank=True,
     )
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = 'email'  # Agora o login será feito pelo email
+    REQUIRED_FIELDS = []  # Removendo a necessidade do username
+
+    objects = CustomerManager()  # Usando o gerenciador personalizado
 
     class Meta:
         verbose_name = "Cliente"
@@ -42,6 +47,7 @@ class Customer(AbstractUser):
         """Reseta o número de trades do cliente."""
         self.trades_today = 0
         self.save()
+
 
 
 # customer/models.py

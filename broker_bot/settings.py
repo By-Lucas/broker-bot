@@ -51,8 +51,8 @@ PROJECT_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + PROJECT_APPS 
 
 
-#AUTH_USER_MODEL = 'customer.Customer'
-LOGIN_URL = "accounts:login"
+AUTH_USER_MODEL = 'customer.Customer'
+LOGIN_URL = "customer:login"
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 MIDDLEWARE = [
