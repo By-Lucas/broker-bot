@@ -175,7 +175,7 @@ class QuotexManagement:
                             martingale_count += 1
                             self.loss_streak += 1
                             await self.client.connect()
-                            continue  # **Agora ele volta para executar a nova tentativa**
+                            continue
 
                         # 📌 **Se foi WIN, para o Martingale**
                         self.loss_streak = 0

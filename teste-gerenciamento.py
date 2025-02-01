@@ -48,13 +48,45 @@ class GerenciamentoConservador:
 
         return None
 
-    def calcular_entrada(self, payout):
-        if self.sequencia_loss >= 3:
-            # Calcula a entrada exata para atingir o stopwin considerando o payout
-            valor_para_stopwin = max(0, (self.stopwin + self.banca_inicial) - self.banca)
-            entrada_necessaria = valor_para_stopwin / payout
-            return max(entrada_necessaria, self.entrada_minima)  # Mantém a entrada mínima
-        return self.entrada_minima
+    def calculate_dynamic_entry(self, qx, qx_manager, payout):
+        """
+        Calcula o valor da entrada com base no gerenciamento ativo, conforme a seguinte regra:
+        Se houver 3 Loss seguidos:
+            Entrada = max( (stopwin + banca_inicial - banca) / payout, entrada_minima )
+        Caso contrário:
+            Entrada = entrada_minima
+        Onde:
+        - banca_inicial: saldo inicial (registrado no gerenciamento, ou, se não existir, usa o saldo atual)
+        - banca: saldo atual da conta do trader (qx)
+        - stopwin: valor definido em qx_manager.stop_gain (meta de ganho)
+        - entrada_minima: valor mínimo de entrada definido (qx_manager.entry_minima)
+        - payout: valor do payout (porcentagem, ex.: 80 para 80%)
+        """
+        from decimal import Decimal
+
+        # Obter valores do gerenciamento; se algum atributo não existir, usamos defaults:
+        entry_minima = Decimal(getattr(qx_manager, "entry_minima", "5"))
+        stopwin = Decimal(getattr(qx_manager, "stop_gain", "8"))
+        # Tente obter banca_inicial; se não estiver definido, usa o saldo atual.
+        banca_inicial = Decimal(getattr(qx_manager, "banca_inicial", 
+                                        qx.real_balance if qx.account_type == "REAL" else qx.demo_balance))
+        # Saldo atual ("banca")
+        banca = Decimal(qx.real_balance) if qx.account_type == "REAL" else Decimal(qx.demo_balance)
+        
+        # Converte o payout para Decimal (payout é em porcentagem; por exemplo, 80 significa 80%)
+        payout_decimal = Decimal(str(payout))
+        
+        # Se houver 3 perdas consecutivas, calcular a entrada de recuperação:
+        if self.loss_streak >= 3:
+            # Valor necessário para atingir o Stopwin: (stopwin + banca_inicial - banca)
+            valor_para_stopwin = max(Decimal("0"), (stopwin + banca_inicial) - banca)
+            # Entrada necessária, ajustada pelo payout:
+            entrada_necessaria = valor_para_stopwin / payout_decimal
+            # Retorna o maior entre a entrada necessária e a entrada mínima
+            return float(max(entrada_necessaria, entry_minima))
+        else:
+            return float(entry_minima)
+
 
     def simular_operacoes(self, taxa_acerto):
         stop_status = None
