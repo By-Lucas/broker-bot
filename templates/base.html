@@ -1,1 +1,18 @@
 {% load static %}
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    {% include "includes/_head.html" %}
+    <title>{% block title %}G7 - Plataforma{% endblock %}</title>
+</head>
+<body class="body">
+    {% include "includes/_navbar.html" %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "includes/_footer.html" %}
+</body>
+</html>
