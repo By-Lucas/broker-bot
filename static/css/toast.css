@@ -1,0 +1,43 @@
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 300px; /* Ajuste o tamanho conforme necessário */
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px; /* Cantos arredondados maiores */
+    color: white;
+    font-weight: bold;
+    font-size: 16px; /* Aumentando o tamanho da fonte */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para destaque */
+    animation: fadeIn 0.5s, fadeOut 0.5s 2.5s;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-warning {
+    background-color: #ffc107;
+}
+
+.toast-icon {
+    margin-right: 10px;
+    font-size: 18px; /* Ícone maior */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+}

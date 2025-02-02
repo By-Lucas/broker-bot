@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export import resources
 from import_export.admin import ExportMixin
 
-from bots.tasks import verify_and_update_quotex
+from bots.tasks import verify_and_update_quotex_task
 from .models import Quotex, QuotexManagement
 
 
@@ -68,7 +68,7 @@ class QuotexAdmin(ExportMixin, admin.ModelAdmin):
     @admin.action(description="Verificar & Atualizar Perfil")
     def verify_quotex_profile(self, request, queryset):
         for quotex in queryset:
-            verify_and_update_quotex.delay(quotex.id)
+            verify_and_update_quotex_task.delay(quotex.id)
         self.message_user(request, f"Verificação enviada para {queryset.count()} conta(s).")
 
     @admin.action(description="Iniciar Robô")

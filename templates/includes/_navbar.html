@@ -1,4 +1,64 @@
 {% load static %}
+<style>
+    .menu-link {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.menu-link.disabled {
+    pointer-events: none;
+    opacity: 0.5; /* Opacidade reduzida para indicar estado desabilitado */
+}
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}
+
+/* Botões desabilitados */
+.menu-item .disabled {
+    cursor: not-allowed;
+    opacity: 0.6; /* Reduz a opacidade para destacar que está desativado */
+}
+
+
+
+/* Cor padrão dos textos e ícones */
+.menu-item .text {
+    transition: color 0.3s ease; /* Suaviza a transição de cores */
+}
+
+.menu-item .icon i {
+    transition: color 0.3s ease; /* Suaviza a transição de cores */
+}
+
+/* Loader (spinner) */
+.loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-bottom-color: #28a745; /* Verde padrão para spinner */
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+    margin-right: 8px; /* Espaço ao lado do texto */
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+ 
+
+
+</style>
 
 <div class="box-logo">
     <a href="{% url 'core:home' %}" id="site-logo-inner">
@@ -44,25 +104,26 @@
             <div class="center-heading">CONTROLE</div>
             <ul class="menu-list">
                 <li class="menu-item">
-                    <a href="#">
+                    <a href="#" id="start-bot" class="menu-link green">
                         <div class="icon"><i class="icon-play"></i></div>
                         <div class="text">Iniciar Robô</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#">
+                    <a href="#" id="pause-bot" class="menu-link red disabled">
                         <div class="icon"><i class="icon-pause"></i></div>
                         <div class="text">Pausar Robô</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#">
+                    <a href="#" id="logout">
                         <div class="icon"><i class="icon-log-out"></i></div>
                         <div class="text">Sair</div>
                     </a>
                 </li>
             </ul>
         </div>
+        
         
         <div class="center-item">
             <div class="center-heading">RESULTADO DAS PESSOAS</div>
@@ -99,3 +160,118 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const startBotButton = document.getElementById("start-bot");
+    const pauseBotButton = document.getElementById("pause-bot");
+    const toggleUrl = "/bot/api/toggle-bot-status/";
+
+    function setLoadingState(button, isLoading) {
+        if (isLoading) {
+            button.dataset.defaultHTML = button.innerHTML; // Salva o conteúdo original
+            button.innerHTML = `<span class="loader"></span> ${button.dataset.defaultHTML}`; // Adiciona o spinner
+            
+            // 🔥 Mantém a cor correta e desabilita o botão corretamente
+            button.querySelector(".text").style.opacity = "0.6"; // Diminui a opacidade do texto
+            button.querySelector(".icon i").style.opacity = "0.6"; // Diminui a opacidade do ícone
+            button.querySelector(".text").style.color = "#6c757d"; // Ícone cinza
+            button.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
+
+        } else {
+            button.innerHTML = button.dataset.defaultHTML; // Restaura o conteúdo original
+            
+            // 🔥 Remove a opacidade reduzida e mantém a cor correta
+            button.querySelector(".text").style.opacity = "1"; // Restaura a opacidade do texto
+            button.querySelector(".icon i").style.opacity = "1"; // Restaura a opacidade do ícone
+            button.querySelector(".text").style.color = "#6c757d"; // Texto cinza
+            button.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
+        }
+    }
+
+
+    function updateButtonStates(isBotActive) {
+        if (isBotActive) {
+            // 🔥 Se o robô está ativo:
+            startBotButton.classList.add("disabled"); // Desativa o botão "Iniciar"
+            pauseBotButton.classList.remove("disabled"); // Habilita o botão "Pausar"
+
+            // 🔥 Aplica a cor correta ao texto e ícone
+            startBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
+            startBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
+
+            pauseBotButton.querySelector(".text").style.color = "#dc3545"; // Vermelho ativo
+            pauseBotButton.querySelector(".icon i").style.color = "#dc3545"; // Ícone vermelho
+
+        } else {
+            // 🔥 Se o robô está inativo:
+            startBotButton.classList.remove("disabled"); // Habilita o botão "Iniciar"
+            pauseBotButton.classList.add("disabled"); // Desativa o botão "Pausar"
+
+            // 🔥 Aplica a cor correta ao texto e ícone
+            startBotButton.querySelector(".text").style.color = "#28a745"; // Verde ativo
+            startBotButton.querySelector(".icon i").style.color = "#28a745"; // Ícone verde
+
+            pauseBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
+            pauseBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
+        }
+    }
+
+    async function getBotStatus() {
+        try {
+            const response = await fetch(toggleUrl, { method: "GET" });
+            const data = await response.json();
+            if (data.success) {
+                updateButtonStates(data.is_bot_active);
+            }
+        } catch (error) {
+            console.error("Erro ao obter status do robô:", error);
+        }
+    }
+
+    async function toggleBotStatus(button, isActivating) {
+        setLoadingState(button, true);
+
+        try {
+            const response = await fetch(toggleUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "status_bot": isActivating }) // 🔥 Envia `true` ou `false`
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                updateButtonStates(data.is_bot_active);
+                setTimeout(() => setLoadingState(button, false), 1000);
+                showToast(`Robô ${data.is_bot_active ? "ativado" : "pausado"} com sucesso!`, "success");
+
+            } else {
+                setTimeout(() => setLoadingState(button, false), 1000);
+                showToast(data.error || "Erro ao alterar o status do robô", "error");
+            }
+        } catch (error) {
+            console.error("Erro ao alternar o status do robô:", error);
+        }
+
+        
+    }
+
+    startBotButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        if (!startBotButton.classList.contains("disabled")) {
+            toggleBotStatus(startBotButton, true); // 🔥 Ativar robô
+        }
+    });
+
+    pauseBotButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        if (!pauseBotButton.classList.contains("disabled")) {
+            toggleBotStatus(pauseBotButton, false); // 🔥 Pausar robô
+        }
+    });
+
+    getBotStatus();
+});
+
+</script>

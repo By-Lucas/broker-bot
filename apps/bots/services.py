@@ -1,11 +1,8 @@
 import json
-import asyncio
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
+from bots.utils import parse_time_aware
 from trading.utils import CustomJSONEncoder
-from bots.constants import CUSTOM_PARITIES
-
-from .utils import parse_time_aware
 from trading.models import TradeOrder
 from integrations.models import Quotex
 from trading.services import get_detailed_dashboard_data
@@ -16,13 +13,13 @@ def create_trade_order_sync(status_buy, asset, info_buy, data={}):
 
     broker_obj = Quotex.objects.get(trader_id=info_buy.get("uid"))
 
-    order_type = "BUY"  # Pode ser ajustado conforme necessário
+    order_type = "BUY"
     open_time = parse_time_aware(info_buy.get("openTime"))
     close_time = parse_time_aware(info_buy.get("closeTime"))
 
     trade_order, created = TradeOrder.objects.update_or_create(
-        broker=broker_obj,  # FK direto para a corretora Quotex
-        id_trade=info_buy.get("id"),  # ID único da operação na corretora
+        broker=broker_obj,  
+        id_trade=info_buy.get("id"),  
         defaults={
             "order_type": order_type,
             "amount": info_buy["amount"],
@@ -38,32 +35,28 @@ def create_trade_order_sync(status_buy, asset, info_buy, data={}):
         }
     )
 
-    # ✅ Se o trade foi criado ou atualizado, dispara a atualização via WebSocket corretamente
     if created or trade_order:
-        send_trade_update(trade_order.broker, trade_order.broker.customer) # ✅ Correto
+        send_trade_update(trade_order.broker)
 
     return trade_order
 
 
-def send_trade_update(broker, user):
-    """ Envia os dados do usuário autenticado para o WebSocket """
-    try:
-        channel_layer = get_channel_layer()
+def send_trade_update(broker):
+    """ Aciona a função `send_websocket_user` no WebSocket sem enviar dados extras """
 
-        # ✅ Obtém os dados filtrados pelo usuário (cotação e saldo incluídos)
-        dashboard_data = asyncio.run(get_detailed_dashboard_data(broker, user))
+    channel_layer = get_channel_layer()
 
-        json_data = json.dumps(dashboard_data, cls=CustomJSONEncoder)
-
-        async_to_sync(channel_layer.group_send)(
-            f"bot_control",
+    async def _send():
+        await channel_layer.group_send(
+            "bot_trades_quotex",  # 🔥 Certifique-se de que este é o grupo correto no consumidor WebSocket
             {
-                "type": "send_trades_update",
-                "data": json_data,
+                "type": "send_websocket_user",
+                "action": "update",
+                "data": {},  # Enviando um payload vazio, apenas para acionar a função
             }
         )
 
-        print(f"🚀 Dados enviados com sucesso para o WebSocket! ({broker.customer.email})")
+    # ✅ Agora rodamos corretamente o método assíncrono dentro do contexto síncrono
+    async_to_sync(_send)()
 
-    except Exception as e:
-        print(f"⚠️ Erro ao enviar dados via WebSocket: {e}")
+    print(f"🚀 Comando enviado ao WebSocket para {broker.customer.email if broker.customer else 'usuário desconhecido'}")

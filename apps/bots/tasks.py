@@ -14,7 +14,7 @@ from integrations.models import Quotex, QuotexManagement
 
 
 @shared_task
-def verify_and_update_quotex(quotex_id=None):
+def verify_and_update_quotex_task(quotex_id=None):
     """
     Verifica credenciais, atualiza perfil e saldo para um único Quotex ou para todos os ativos.
     Se `quotex_id` for None, atualiza todos os clientes ativos em lotes de 20.
@@ -62,10 +62,10 @@ def verify_and_update_quotex(quotex_id=None):
                 quotex.currency_symbol = currency_symbol
 
                 # ✅ Valida saldo mínimo para operar
-                if quotex.account_type == "REAL" and real_balance < Decimal("5"):
-                    quotex.is_active = False  # Desativa se saldo for insuficiente
-                elif quotex.account_type == "PRACTICE" and demo_balance < Decimal("1"):
-                    quotex.is_active = False  # Desativa conta prática sem saldo
+                if quotex.account_type == "REAL" and quotex.real_balance < 1:
+                    quotex.is_bot_active = False  # Desativa se saldo for insuficiente
+                elif quotex.account_type == "PRACTICE" and quotex.demo_balance < 1:
+                    quotex.is_bot_active = False  # Desativa conta prática sem saldo
 
                 quotex.updated_at = timezone.now()
                 quotex.save()
@@ -87,6 +87,7 @@ def verify_and_update_quotex(quotex_id=None):
 
     return {"status": "success", "updated_accounts": total_accounts}
 
+
 @shared_task
 def execute_random_trade(quotex_id, data):
     """
@@ -96,6 +97,8 @@ def execute_random_trade(quotex_id, data):
 
     # Obter a instância do Quotex
     qx = Quotex.objects.get(id=quotex_id)
+
+    send_trade_update(qx)
 
     # Criar o gerenciador
     manager = BaseQuotex(
@@ -159,9 +162,6 @@ def schedule_random_trades():
                 "broker_id": qx.id,
 
             }
-
-            # Enviar a ordem como uma **task Celery assíncrona**
-            send_trade_update(qx, qx.customer)
 
             execute_random_trade.delay(qx.id, data)
 

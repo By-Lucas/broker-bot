@@ -5,41 +5,32 @@ from trading.models import TradeOrder
 from integrations.models import Quotex
 
 
-async def get_detailed_dashboard_data(trades_queryset, user):
+
+async def get_detailed_dashboard_data(trades_list, user):
     """ Retorna os dados detalhados apenas para os traders do usuário """
 
-    # 🔥 Filtra os traders corretamente
-    trades_queryset = await sync_to_async(lambda: TradeOrder.objects.filter(broker__customer=user))()
-
-    total_trades = await sync_to_async(lambda: trades_queryset.count())()
-    total_results = await sync_to_async(
-        lambda: float(trades_queryset.aggregate(total=Sum("result"))["total"] or 0)
-    )()
+    # ✅ Converte para queryset de forma assíncrona
+    total_trades = len(trades_list)
+    total_results = sum(trade.result for trade in trades_list)
 
     # Contagem de status
-    status_counts_raw = await sync_to_async(lambda: list(
-        trades_queryset.values("order_result_status").annotate(count=Count("id"))
-    ))()
-    status_counts = {status["order_result_status"]: status["count"] for status in status_counts_raw}
+    status_counts = {}
+    for trade in trades_list:
+        status_counts[trade.order_result_status] = status_counts.get(trade.order_result_status, 0) + 1
 
     # Detalhes dos traders
-    trade_details = await sync_to_async(lambda: list(
-        trades_queryset.values(
-            "id_trade",
-            "asset_order",
-            "order_result_status",
-            "amount",
-            "percent_profit",
-            "result",
-            "broker__email"  # Incluindo nome do trader (corretora)
-        )
-    ))()
-
-    # **Formatação dos dados para evitar erro Decimal**
-    for trade in trade_details:
-        trade["result"] = float(trade["result"]) if trade["result"] else 0
-        trade["amount"] = float(trade["amount"]) if trade["amount"] else 0
-        trade["percent_profit"] = float(trade["percent_profit"]) if trade["percent_profit"] else 0
+    trade_details = [
+        {
+            "id_trade": trade.id_trade,
+            "asset_order": trade.asset_order,
+            "order_result_status": trade.order_result_status,
+            "amount": float(trade.amount),
+            "percent_profit": float(trade.percent_profit),
+            "result": float(trade.result),
+            "broker_email": trade.broker.email,  # Incluindo nome do trader (corretora)
+        }
+        for trade in trades_list
+    ]
 
     # 🔥 PEGAR DADOS DA CONTA DO USUÁRIO
     account_balance = {

@@ -498,5 +498,280 @@
         "win": true,
         "game_state": 1,
         "profit": 6.3
+    },
+    "83d56888-5f31-4118-954b-12b06361288d": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "c7ec4679-0576-48a6-a9fc-fdc378bbbd5c": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "55397110-d316-47a6-905b-f15a7d26434d": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "61594ccb-d6b6-4957-bd7f-6cbbc718116a": {
+        "win": true,
+        "game_state": 1,
+        "profit": 25.049400000000002
+    },
+    "8e9792c0-ea28-4cce-8b17-2954479b9bd9": {
+        "win": true,
+        "game_state": 1,
+        "profit": 44.94
+    },
+    "315d0fd4-1f21-49f3-b001-0d9256e8e71a": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.16
+    },
+    "648224ae-9b8b-444e-a961-cec88480d166": {
+        "win": false,
+        "game_state": 1,
+        "profit": -80.25
+    },
+    "49eee217-8b77-41f5-865e-ef24acd9f60f": {
+        "win": true,
+        "game_state": 1,
+        "profit": 87.74
+    },
+    "e17cef37-6030-43f8-8349-181f2c590bed": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "b4e62885-90a5-4641-b8a6-5dcba2a84505": {
+        "win": true,
+        "game_state": 1,
+        "profit": 97.37
+    },
+    "79a48c27-1d4b-4087-a0d3-9b71fe6d56a1": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "c377d453-e12a-4b50-a158-4ce4c3d6a66a": {
+        "win": false,
+        "game_state": 1,
+        "profit": -107
+    },
+    "7724dbfe-754a-4915-b568-ad62e8ce0740": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.88
+    },
+    "f91cc347-b2ec-47bb-a328-dff45cff4440": {
+        "win": false,
+        "game_state": 1,
+        "profit": -107
+    },
+    "e593a439-edca-4e1b-869b-6cecacf9e519": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "86f969c4-a6e8-4de7-af90-41e93906f159": {
+        "win": false,
+        "game_state": 1,
+        "profit": -107
+    },
+    "6807e5f1-654b-4555-8a96-909b76aeb03d": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "8f311017-3418-4eb9-a013-df7ebac7a78e": {
+        "win": true,
+        "game_state": 1,
+        "profit": 0
+    },
+    "2114835c-deab-419c-9223-77064b821760": {
+        "win": false,
+        "game_state": 1,
+        "profit": -107
+    },
+    "8dfd33aa-666f-4d72-a163-04ea240e4c3f": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "19218050-60d1-44d9-aa34-584a0a4be011": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.74
+    },
+    "ec3b1b3d-916d-459a-b5c6-a6c31aaca266": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.23
+    },
+    "ab5d76d3-1025-4bad-a529-b80117bafd1f": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.02
+    },
+    "e7ad2ed4-9bcf-4451-ab89-67d109c66420": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.3
+    },
+    "5ea7942c-89d5-4258-8115-32c9ccfdc1b7": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.67
+    },
+    "f9591efc-143d-47af-b824-b427a374d4f5": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "fa82cb83-1dc5-4e95-ab86-a56daa70c638": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "c8ed2d6f-e81e-42a1-840a-e49cf116459a": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "6e88d36d-6739-4405-94b7-9c8827bc52d7": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.51
+    },
+    "9efc390d-b7fb-4ddd-a184-6004cd6491b4": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "9fbad676-2ee5-4f04-9815-0ae33fbca77b": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.16
+    },
+    "46858062-9858-4316-afca-e63684b48d71": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "159912f8-7206-4bfb-b6cf-8016aa7eb729": {
+        "win": true,
+        "game_state": 1,
+        "profit": -7
+    },
+    "62e0cd3e-2ef4-4887-9416-2270b4c41afe": {
+        "win": true,
+        "game_state": 1,
+        "profit": 24.12
+    },
+    "5e1a7f80-a409-421c-9c05-684b25bd2a69": {
+        "win": true,
+        "game_state": 1,
+        "profit": -30.15
+    },
+    "f395cfc2-15e3-4d49-828f-2b0531e48146": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "c157daa4-afd5-4a98-af9c-dac5a32a0829": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "d9eb59e9-6639-4d9d-b06a-9e44b642270d": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.51
+    },
+    "c7d5615b-f2d4-4a37-8f68-82a7b206e7e1": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "b5969908-9be3-4351-a750-5437b8795cab": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.37
+    },
+    "af957f53-30e7-424e-97ce-2a3353abfa46": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "fcacb3ed-83d1-4964-959b-96ecad22551c": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.74
+    },
+    "2e3d8cdd-7242-41c5-a800-d6fcf24d030c": {
+        "win": true,
+        "game_state": 1,
+        "profit": 24.6738
+    },
+    "abaa7638-5739-4955-8ec9-b235b050ba74": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "c52ebaf2-1eb6-4040-b745-3bd213cca106": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.3
+    },
+    "cc2f9960-849f-4de9-9a57-ba57e7d4cd12": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "2f428460-75ff-40e7-a0a4-fdfb77c32ecc": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "92f65009-4e9c-48bc-b6b4-14563fa43fa7": {
+        "win": true,
+        "game_state": 1,
+        "profit": 27.144000000000002
+    },
+    "aa3aa9bf-8a43-4daa-8109-cf75a6f39464": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "50062748-4fd9-42d2-8d7d-2bc0d0950305": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.02
+    },
+    "fdbcc71d-1312-447b-a3d9-9058f14728f4": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "9c9d76c4-f25e-466f-9b54-5608942ae783": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "60379ce4-0aac-41aa-bf05-a5f593e987a5": {
+        "win": false,
+        "game_state": 1,
+        "profit": -30.18
+    },
+    "e5a240be-d914-4bfd-b667-4dc3b04e4da2": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.6
+    },
+    "7b3bfe3d-6798-4ca8-a78a-200b13be1a93": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.37
     }
 }

@@ -1,8 +1,6 @@
 """Module for Quotex Candles websocket object."""
-import asyncio
 import json
 import os
-from apps.trading.services import get_detailed_dashboard_data
 from quotexapi.ws.objects.base import Base
 
 from trading.models import TradeOrder
@@ -61,7 +59,7 @@ class ListInfoData(Base):
                 else:
                     status = "DOGI"
 
-                traders = TradeOrder.objects.filter(id=order.id).update(
+                TradeOrder.objects.filter(id=order.id).update(
                     order_result_status=status,
                     result=profit if profit is not None else order.result,
                     status="EXECUTED"
@@ -72,7 +70,6 @@ class ListInfoData(Base):
                     order.broker.add_profit(profit)
 
                 print(f"Ordem atualizada com sucesso: {order.id_trade}")
-                asyncio.run(get_detailed_dashboard_data(traders, order.customer))
             else:
                 print(f"Ordem não encontrada para atualização: {id_number}")
 

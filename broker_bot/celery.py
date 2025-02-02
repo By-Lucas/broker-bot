@@ -30,7 +30,7 @@ app.conf.beat_schedule = {
 
     # ✅ Tarefa: Verificar e atualizar informações da Quotex a cada 5 horas
     'verify-update-quotex-every-5-hours': {
-        'task': 'bots.tasks.verify_and_update_quotex',
+        'task': 'bots.tasks.verify_and_update_quotex_task',
         'schedule': crontab(minute=0, hour='*/5'),  # A cada 5 horas
         'args': []  # Pode ser chamado com argumentos caso necessário
     },
