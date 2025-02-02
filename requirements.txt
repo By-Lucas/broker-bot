@@ -3,7 +3,7 @@ loguru==0.7.2
 psycopg2==2.9.10
 whitenoise==6.7.0
 djangorestframework==3.15.2
-#daphne==4.1.2
+daphne==4.1.2
 django-cors-headers==4.5.0
 gunicorn==23.0.0
 celery==5.3.4

@@ -5,6 +5,7 @@ import random
 from celery import shared_task
 from django.utils import timezone
 
+from bots.services import send_trade_update
 from bots.utils import calculate_entry_amount, is_valid_trader
 from trading.models import TradeOrder
 from bots.constants import PARITIES
@@ -39,11 +40,6 @@ def verify_and_update_quotex(quotex_id=None):
                     account_type=quotex.account_type
                 )
 
-                # ✅ Testa conexão
-                connected = asyncio.run(manager.send_connect())
-                if not connected:
-                    print(f"Erro ao conectar com {quotex.email}")
-                    continue
 
                 # ✅ Obtém perfil e saldo
                 profile_data = asyncio.run(manager.get_profile())
@@ -111,6 +107,7 @@ def execute_random_trade(quotex_id, data):
     # Executar a operação
     status_buy, info_buy = asyncio.run(manager.buy_sell(data))
 
+
     return {
         "email": qx.email,
         "status_buy": status_buy,
@@ -164,6 +161,8 @@ def schedule_random_trades():
             }
 
             # Enviar a ordem como uma **task Celery assíncrona**
+            send_trade_update(qx, qx.customer)
+
             execute_random_trade.delay(qx.id, data)
 
     return f"{total} trades agendados com sucesso!"

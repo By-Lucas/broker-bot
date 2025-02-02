@@ -1,6 +1,12 @@
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+import asyncio
+from decimal import Decimal
+from django.db.models import Sum, Count
+from asgiref.sync import sync_to_async, async_to_sync
+from channels.layers import get_channel_layer
 from django.db import models
+
+from integrations.models import Quotex  # Importando diretamente a Quotex
+
 
 class TradeOrder(models.Model):
     ORDER_TYPE_CHOICES = [
@@ -15,12 +21,16 @@ class TradeOrder(models.Model):
         ("PENDING", "PENDENTE")
     ]
 
-    # Polimorfismo para suportar múltiplas corretoras
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="Tipo de Corretora")
-    object_id = models.PositiveIntegerField(verbose_name="ID da Conta")
-    broker = GenericForeignKey("content_type", "object_id")
+    # Relacionamento direto com Quotex
+    broker = models.ForeignKey(
+        Quotex,
+        on_delete=models.CASCADE,
+        related_name="trades",
+        verbose_name="Corretora"
+    )
 
     # Dados básicos
+    is_active = models.BooleanField(null=True, blank=True, verbose_name="Ativo", default=True)
     asset_order = models.CharField(max_length=15, null=True, blank=True, verbose_name="Par de moeda")
     order_type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES, verbose_name="Tipo de Ordem")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor da Ordem")
@@ -66,30 +76,11 @@ class TradeOrder(models.Model):
 
     def __str__(self):
         return f"Ordem {self.order_type} - {self.amount} ({self.status}) - {self.broker}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
     
-
-    @classmethod
-    def get_detailed_dashboard_data(cls, broker=None):
-        """
-        Retorna dados detalhados para o dashboard.
-        - Quantidade de trades por status (WIN, LOSS, DOGI).
-        - Soma dos resultados.
-        """
-        query = cls.objects.all()
-        if broker:
-            query = query.filter(content_type=broker.content_type, object_id=broker.id)
-
-        total_trades = query.count()
-        total_results = query.aggregate(total=models.Sum("result"))["total"] or 0
-
-        status_counts = query.values("order_result_status").annotate(count=models.Count("id"))
-
-        return {
-            "total_trades": total_trades,
-            "total_results": total_results,
-            "status_counts": {status["order_result_status"]: status["count"] for status in status_counts},
-        }
-
     def broker_display(self):
-        return str(self.broker)  # broker é um GenericForeignKey
+        return str(self.broker)
     broker_display.short_description = "Corretora"

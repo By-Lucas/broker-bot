@@ -1,18 +1,65 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    {% include "includes/_head.html" %}
-    <title>{% block title %}G7 - Plataforma{% endblock %}</title>
+    {% include 'includes/_head.html' %}
 </head>
 <body class="body">
-    {% include "includes/_navbar.html" %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <!-- #wrapper -->
+    <div id="wrapper">
+        <!-- #page -->
+        <div id="page" class="">
+            <!-- layout-wrap -->
+           <div class="layout-wrap">
+                <!-- preload -->
+                <div id="preload" class="preload-container">
+                    <div class="preloading">
+                        <span></span>
+                    </div>
+                </div>
+                
+                <div class="section-menu-left">
+                    {% include 'includes/_navbar.html' %}
+                </div>
+                    
+                <div class="section-content-right">
+                    {% include 'includes/_header.html' %}
 
-    {% include "includes/_footer.html" %}
+                    <!-- main-content -->
+                    <div class="main-content">
+                        {% block content %}
+                        {% endblock %}
+
+                        {% include 'includes/_footer.html' %}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Javascript -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-select.min.js' %}"></script>
+    <script src="{% static 'js/zoom.js' %}"></script>
+    <script src="{% static 'js/jvectormap-1.2.2.min.js' %}"></script>
+    <script src="{% static 'js/jvectormap-us-lcc.js' %}"></script>
+    <script src="{% static 'js/jvectormap.js' %}"></script>
+    <script src="{% static 'js/apexcharts/apexcharts.js' %}"></script>
+    <script src="{% static 'js/apexcharts/line-chart-1.js' %}"></script>
+    <script src="{% static 'js/apexcharts/line-chart-2.js' %}"></script>
+    <script src="{% static 'js/apexcharts/line-chart-3.js' %}"></script>
+    <script src="{% static 'js/apexcharts/line-chart-4.js' %}"></script>
+    <script src="{% static 'js/apexcharts/line-chart-7.js' %}"></script>
+    <!-- <script src="{% static 'js/switcher.js' %}"></script> -->
+    <script src="{% static 'js/theme-settings.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
 </body>
 </html>

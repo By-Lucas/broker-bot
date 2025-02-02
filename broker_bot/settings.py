@@ -19,12 +19,16 @@ ALLOWED_HOSTS = ["*"]
 sys.path.append(os.path.join(BASE_DIR, 'apps'))
 
 DJANGO_APPS = [
+    'daphne',
+    "channels",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
 ]
 
 THIRD_APPS = [
@@ -42,6 +46,7 @@ PROJECT_APPS = [
     #"accounts",
     "logs",
     "bots",
+    "core",
     "trading",
     "customer",
     "quotexapi",
@@ -58,7 +63,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "logs.middleware.ExceptionLoggingMiddleware",
+    #"logs.middleware.ExceptionLoggingMiddleware",
 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -88,6 +93,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "broker_bot.wsgi.application"
+ASGI_APPLICATION = "broker_bot.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 
 # Database

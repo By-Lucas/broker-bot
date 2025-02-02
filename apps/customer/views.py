@@ -12,7 +12,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("home")  # Substitua 'home' pelo nome correto da sua URL de home
+            return redirect("core:home")  # Substitua 'home' pelo nome correto da sua URL de home
         else:
             messages.error(request, "Email ou senha inválidos.")
 

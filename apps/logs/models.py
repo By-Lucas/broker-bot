@@ -1,34 +1,38 @@
 from django.db import models
+
+from customer.models import Customer
 from helpers.base_models import BaseModelTimestampUser
 
 
 class SystemLogManager(models.Manager):
 
     def create_log(self, level, message, user=None, request=None, location=None):
-        """
-        Cria um log no banco de dados.
-        """
-        request_data = {
-            "method": request.method,
-            "url": request.build_absolute_uri(),
-            "params": request.GET.dict(),
-            "data": request.POST.dict(),
-        } if request else None
+        request_data = None
+        
+        if request:
+            request_data = {
+                "method": request.method,
+                "url": request.build_absolute_uri(),
+                "params": request.GET.dict(),
+                "data": request.POST.dict(),
+            }
 
+        # Verifica se o usuário existe antes de salvar
+        if user and not Customer.objects.filter(id=user.id).exists():
+            user = None  # Se não existir, evita erro de integridade
 
-        # Criar o log
         log = self.model(
             level=level,
             message=message,
-            user=user,  # Pode ser None devido ao campo null=True no modelo
+            user=user,  # Garantia de que é um usuário válido
             location=location,
-            request_data=request_data
+            request_data=str(request_data) if request_data else None  # Converte JSON para string
         )
-
         try:
             log.save(using=self._db)
         except Exception as e:
             print(f"Erro ao salvar o log: {e}")
+
 
     def error(self, message, user=None, request=None):
         return self.create_log(level='error', message=message, user=user, request=request, location=None)

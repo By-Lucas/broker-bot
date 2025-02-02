@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content-inner">
+    <!-- main-content-wrap -->
+    <div class="main-content-wrap">
+        <div class="tf-section-4 mb-30">
+            <!-- Só aparece quando acontecer lucro maximo 
+            <div class="wg-chart-default-aviso">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <h6 class="white-color">Acesso interrompido</h6>
+                        <button class="tf-button w208" type="submit">Liberar acesso</button> 
+                    </div>
+                </div>
+            </div> -->
+            <!-- chart-default -->
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="52" viewBox="0 0 48 52" fill="none">
+                                <path opacity="0.08" d="M19.1086 2.12943C22.2027 0.343099 26.0146 0.343099 29.1086 2.12943L42.4913 9.85592C45.5853 11.6423 47.4913 14.9435 47.4913 18.5162V33.9692C47.4913 37.5418 45.5853 40.8431 42.4913 42.6294L29.1086 50.3559C26.0146 52.1423 22.2027 52.1423 19.1086 50.3559L5.72596 42.6294C2.63194 40.8431 0.725956 37.5418 0.725956 33.9692V18.5162C0.725956 14.9435 2.63195 11.6423 5.72596 9.85592L19.1086 2.12943Z" fill="url(#paint0_linear_53_110)"/>
+                                <defs>
+                                  <linearGradient id="paint0_linear_53_110" x1="-43.532" y1="-34.3465" x2="37.6769" y2="43.9447" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#92BCFF"/>
+                                    <stop offset="1" stop-color="#2377FC"/>
+                                  </linearGradient>
+                                </defs>
+                            </svg>
+                            <i class="icon-trending-up"></i>
+                        </div>
+                        <div>
+                            <div class="body-text mb-2">LUCRO DURANTE O TESTE</div>
+                            <h4 class="yellow-color">R$3,123</h4>
+                        </div>
+                    </div>
+                    <div class="box-icon-trending up">
+                        <i class="icon-trending-up"></i>
+                        <div class="body-title number">150.11%</div>
+                    </div>
+                </div>
+               
+            </div>
+            
+            <!-- chart-default -->
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="52" viewBox="0 0 48 52" fill="none">
+                                <path opacity="0.08" d="M19.1086 2.12943C22.2027 0.343099 26.0146 0.343099 29.1086 2.12943L42.4913 9.85592C45.5853 11.6423 47.4913 14.9435 47.4913 18.5162V33.9692C47.4913 37.5418 45.5853 40.8431 42.4913 42.6294L29.1086 50.3559C26.0146 52.1423 22.2027 52.1423 19.1086 50.3559L5.72596 42.6294C2.63194 40.8431 0.725956 37.5418 0.725956 33.9692V18.5162C0.725956 14.9435 2.63195 11.6423 5.72596 9.85592L19.1086 2.12943Z" fill="url(#paint0_linear_53_110)"/>
+                                <defs>
+                                  <linearGradient id="paint0_linear_53_110" x1="-43.532" y1="-34.3465" x2="37.6769" y2="43.9447" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#92BCFF"/>
+                                    <stop offset="1" stop-color="#2377FC"/>
+                                  </linearGradient>
+                                </defs>
+                            </svg>
+                            <i class="icon-credit-card"></i>
+                        </div>
+                        <div>
+                            <div class="body-text mb-2" id="account-type">CONTA REAL</div>
+                            <h4 class="white-color" id="account-balance">R$ 0</h4>
+                        </div>
+                    </div>
+                    <div class="box-icon-trending up">
+                        <i class="icon-trending-up"></i>
+                        <div class="body-title number">1.56%</div>
+                    </div>
+                </div>
+               
+            </div>
+            <!-- chart-default -->
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="52" viewBox="0 0 48 52" fill="none">
+                                <path opacity="0.08" d="M19.1086 2.12943C22.2027 0.343099 26.0146 0.343099 29.1086 2.12943L42.4913 9.85592C45.5853 11.6423 47.4913 14.9435 47.4913 18.5162V33.9692C47.4913 37.5418 45.5853 40.8431 42.4913 42.6294L29.1086 50.3559C26.0146 52.1423 22.2027 52.1423 19.1086 50.3559L5.72596 42.6294C2.63194 40.8431 0.725956 37.5418 0.725956 33.9692V18.5162C0.725956 14.9435 2.63195 11.6423 5.72596 9.85592L19.1086 2.12943Z" fill="url(#paint0_linear_53_110)"/>
+                                <defs>
+                                  <linearGradient id="paint0_linear_53_110" x1="-43.532" y1="-34.3465" x2="37.6769" y2="43.9447" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#92BCFF"/>
+                                    <stop offset="1" stop-color="#2377FC"/>
+                                  </linearGradient>
+                                </defs>
+                            </svg>
+                            <i class="icon-dollar-sign"></i>
+                        </div>
+                        <div>
+                            <div class="body-text mb-2">LUCRO HOJE</div>
+                            <h4 class="white-color" id="total-results">R$0</h4>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    
+                    <!-- Seção WINS -->
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="52" viewBox="0 0 48 52" fill="none">
+                            <path opacity="0.08" d="M19.1086 2.12943C22.2027 0.343099 26.0146 0.343099 29.1086 2.12943L42.4913 9.85592C45.5853 11.6423 47.4913 14.9435 47.4913 18.5162V33.9692C47.4913 37.5418 45.5853 40.8431 42.4913 42.6294L29.1086 50.3559C26.0146 52.1423 22.2027 52.1423 19.1086 50.3559L5.72596 42.6294C2.63194 40.8431 0.725956 37.5418 0.725956 33.9692V18.5162C0.725956 14.9435 2.63195 11.6423 5.72596 9.85592L19.1086 2.12943Z" fill="url(#paint0_linear_53_110)"/>
+                            <defs>
+                              <linearGradient id="paint0_linear_53_110" x1="-43.532" y1="-34.3465" x2="37.6769" y2="43.9447" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#92BCFF"/>
+                                <stop offset="1" stop-color="#2377FC"/>
+                              </linearGradient>
+                            </defs>
+                        </svg>
+                        <i class="icon-bar-chart-2"></i>
+                    </div>
+                        <div>
+                            <div class="body-text mb-2">WINS</div>
+                            <h4 class="wins-color" id="wins-count">0</h4> <!-- Número verde -->
+                        </div>
+                    </div>
+                    
+                    <!-- Seção LOSS -->
+                    <div class="flex items-center gap14">
+                        <div>
+                            <div class="body-text mb-2">LOSS</div>
+                            <h4 class="loss-color" id="loss-count">0</h4> <!-- Número vermelho -->
+                        </div>
+                    </div>
+            
+                    <!-- Seção WIN RATE -->
+                    <div class="flex items-center gap14">
+                        <div>
+                            <div class="body-text mb-2">WIN RATE</div>
+                            <h4 class="white-color" id="win-rate">0%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    
+        <div class="tf-section">
+            <!-- product-overview -->
+            <div class="wg-box">
+                
+                <div class="wg-table table-product-overview">
+                    <ul class="table-title flex gap20 mb-14">
+                        <li>
+                            <div class="body-title">PAR</div>
+                        </li>    
+                        <li>
+                            <div class="body-title">Corretora</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Valor</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Payout</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Resultado</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Status</div>
+                        </li>
+                    </ul>
+                    <ul id="win-loss-table" class="flex flex-column gap10">
+                        <!-- Os itens serão preenchidos pelo WebSocket -->
+                    </ul>
+                </div>
+                
+            </div>
+            <!-- /product-overview -->
+        </div>
+    </div>
+    <!-- /main-content-wrap -->
+</div>
+
+<script>
+const socket = new WebSocket("ws://" + window.location.host + "/ws/trader/quotex/");
+
+socket.onopen = function () {
+    console.log("✅ WebSocket conectado com sucesso!");
+};
+
+socket.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    console.log("📡 Dados recebidos via WebSocket:", data);
+
+    if (!data.trade_details || !Array.isArray(data.trade_details)) {
+        console.error("⚠ Nenhum trade disponível ou formato inválido.");
+        return;
+    }
+
+    // Elementos do DOM
+    const totalResultsElement = document.getElementById("total-results");
+    const winsCountElement = document.getElementById("wins-count");
+    const lossCountElement = document.getElementById("loss-count");
+    const winRateElement = document.getElementById("win-rate");
+    const accountType = document.getElementById("account-type");
+    const accountBalance = document.getElementById("account-balance");
+
+    // Definição do saldo e tipo de conta
+    const balanceData = data.account_balance || { type: "DESCONHECIDO", balance: 0, currency: "R$" };
+
+    if (accountType) {
+        accountType.innerText = `CONTA ${balanceData.type}`;
+    }
+
+    if (accountBalance) {
+        accountBalance.innerText = `${balanceData.currency} ${balanceData.balance.toFixed(2)}`;
+    }
+
+    if (totalResultsElement) {
+        totalResultsElement.innerText = `${balanceData.currency} ${data.total_results ? data.total_results.toFixed(2) : "0.00"}`;
+    }
+
+    const totalWins = data.status_counts.WIN || 0;
+    const totalTrades = data.total_trades || 0;
+    const winRate = totalTrades > 0 ? ((totalWins / totalTrades) * 100).toFixed(2) : "0.00";
+
+    if (winsCountElement) {
+        winsCountElement.innerText = totalWins;
+    }
+
+    if (lossCountElement) {
+        lossCountElement.innerText = data.status_counts.LOSS || "0";
+    }
+
+    if (winRateElement) {
+        winRateElement.innerText = `${winRate}%`;
+    }
+
+    // Atualizar tabela de WIN e LOSS
+    const winLossTable = document.querySelector("#win-loss-table");
+    if (winLossTable) {
+        winLossTable.innerHTML = "";
+
+        data.trade_details.forEach((trade) => {
+            const itemClass = trade.order_result_status === "WIN" ? "block-available" : "block-not-available";
+            const statusText = trade.order_result_status === "WIN" ? "WIN" : "LOSS";
+
+            const imageUrl = "/static/images/quotex.svg"; // URL direta para a imagem
+
+            const item = `
+                <li class="product-item gap14">
+                    <div class="image">
+                        <img src="${imageUrl}" alt="${trade.asset_order || 'Trade'}">
+                    </div>
+                    <div class="flex items-center justify-between flex-grow">
+                        <div class="name">
+                            <span class="body-text">${trade.asset_order || "N/A"}</span>
+                        </div>
+                        <div class="body-text">${trade.content_type__model || "--"}</div>
+                        <div class="body-text">${balanceData.currency} ${trade.amount ? trade.amount.toFixed(2) : "--"}</div>
+                        <div class="body-text">${trade.percent_profit || "--"}%</div>
+                        <div class="body-text">${balanceData.currency} ${trade.result ? trade.result.toFixed(2) : "--"}</div>
+                        <div class="${itemClass}">${statusText}</div>
+                    </div>
+                </li>
+            `;
+            winLossTable.innerHTML += item;
+        });
+    }
+};
+
+socket.onclose = function () {
+    console.error("❌ WebSocket desconectado.");
+};
+
+</script>
+{% endblock %}

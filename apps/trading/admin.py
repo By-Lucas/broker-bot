@@ -11,6 +11,7 @@ class TradeOrderResource(resources.ModelResource):
             "id",
             "broker",
             "order_type",
+            "is_active",
             "order_result_status",
             "amount",
             "asset_order",
@@ -41,6 +42,7 @@ class TradeOrderAdmin(ExportMixin, admin.ModelAdmin):
         "asset_order",
         "amount",
         "result",
+        "is_active",
         "id_trade",
         "open_time",
         "close_time",
@@ -54,12 +56,11 @@ class TradeOrderAdmin(ExportMixin, admin.ModelAdmin):
     search_fields = (
         "id_trade",
         "uid",
-        "broker__name", 
-        "broker__id",
         "order_type",
+        "is_active",
         "status",
     )
-    readonly_fields = ("created_at", "executed_at", "request_body")
+    readonly_fields = ("created_at", "executed_at")
 
     fieldsets = (
         (
@@ -91,6 +92,7 @@ class TradeOrderAdmin(ExportMixin, admin.ModelAdmin):
         (
             "Status e Resultado", {
                 "fields": (
+                    "is_active",
                     "order_result_status",
                     "status",
                     "request_body",

@@ -252,3 +252,28 @@ class QuotexManagement:
         else:
             self.loss_streak = 0
             self.accumulated_loss = Decimal("0.00")
+    
+
+    async def get_profile(self) -> dict:
+        await self.send_connect()
+        profile = await self.client.get_profile()
+        if profile:
+            if self.account_type.upper() in ["REAL", "PRACTICE"] and float(profile.live_balance) >= 1 or float(profile.demo_balance):
+               
+                profile_data = {
+                    "broker_id": 1,
+                    "email":self.email,
+                    "profile_id": profile.profile_id,
+                    "nick_name": profile.nick_name,
+                    "avatar": profile.avatar,
+                    "offset": profile.offset,
+                    "country_name": profile.country_name,
+                    "demo_balance": profile.demo_balance,
+                    "live_balance": profile.live_balance,
+                    "currency_code": profile.currency_code,
+                    "currency_symbol": profile.currency_symbol,
+                }
+                await self.client.close()
+                return profile_data
+        await self.client.close()
+        return {}
