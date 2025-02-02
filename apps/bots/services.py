@@ -41,22 +41,17 @@ def create_trade_order_sync(status_buy, asset, info_buy, data={}):
     return trade_order
 
 
-def send_trade_update(broker):
+def send_trade_update(broker, broker_slug="quotex"):
     """ Aciona a função `send_websocket_user` no WebSocket sem enviar dados extras """
 
     channel_layer = get_channel_layer()
-
-    async def _send():
-        await channel_layer.group_send(
-            "bot_trades_quotex",  # 🔥 Certifique-se de que este é o grupo correto no consumidor WebSocket
-            {
-                "type": "send_websocket_user",
-                "action": "update",
-                "data": {},  # Enviando um payload vazio, apenas para acionar a função
-            }
-        )
-
-    # ✅ Agora rodamos corretamente o método assíncrono dentro do contexto síncrono
-    async_to_sync(_send)()
+    async_to_sync(channel_layer.group_send)(
+        f'bot_trades_{broker_slug}',
+        {
+            'type': 'send_websocket_user',
+            "action": "update",
+            "data": {},
+        }
+    )
 
     print(f"🚀 Comando enviado ao WebSocket para {broker.customer.email if broker.customer else 'usuário desconhecido'}")

@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+from bots.services import send_trade_update
 from bots.tasks import verify_and_update_quotex_task
 from integrations.models import Quotex
 
@@ -60,6 +61,8 @@ def toggle_bot_status(request):
     """Ativa ou desativa o robô baseado no status atual e verifica saldo antes de ativar."""
     if request.method == "GET":
         quotex_account = get_object_or_404(Quotex, customer=request.user)
+        send_trade_update(quotex_account, "quotex")
+
         return JsonResponse({
             "success": True,
             "is_bot_active": quotex_account.is_bot_active
@@ -67,10 +70,14 @@ def toggle_bot_status(request):
     
     if request.method == "POST":
         try:
+
             data = json.loads(request.body)
             new_status = data.get("status_bot")
 
             quotex_account = get_object_or_404(Quotex, customer=request.user)
+
+            send_trade_update(quotex_account, "quotex")
+
 
             # ✅ Se o robô já estiver ativo, apenas desativa sem chamar a task
             if quotex_account.is_bot_active:
@@ -101,6 +108,7 @@ def toggle_bot_status(request):
             # ✅ Alterna o status do robô
             quotex_account.is_bot_active = True
             quotex_account.save()
+
 
             return JsonResponse({
                 "success": True,
