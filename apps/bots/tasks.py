@@ -98,8 +98,6 @@ def execute_random_trade(quotex_id, data):
     # Obter a instância do Quotex
     qx = Quotex.objects.get(id=quotex_id)
 
-    send_trade_update(qx)
-
     # Criar o gerenciador
     manager = BaseQuotex(
         email=qx.email,
@@ -163,7 +161,7 @@ def schedule_random_trades():
 
             }
 
-            execute_random_trade.delay(qx.id, data)
+            result = execute_random_trade.delay(qx.id, data)
 
     return f"{total} trades agendados com sucesso!"
 

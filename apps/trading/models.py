@@ -2,7 +2,6 @@ import asyncio
 from decimal import Decimal
 from django.db.models import Sum, Count
 from asgiref.sync import sync_to_async, async_to_sync
-from channels.layers import get_channel_layer
 from django.db import models
 
 from integrations.models import Quotex  # Importando diretamente a Quotex

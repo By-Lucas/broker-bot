@@ -1,6 +1,7 @@
 """Module for Quotex Candles websocket object."""
-import json
 import os
+import json
+from bots.services import send_trade_update
 from quotexapi.ws.objects.base import Base
 
 from trading.models import TradeOrder
@@ -69,6 +70,7 @@ class ListInfoData(Base):
                 if profit is not None:
                     order.broker.add_profit(profit)
 
+                send_trade_update(order.broker)
                 print(f"Ordem atualizada com sucesso: {order.id_trade}")
             else:
                 print(f"Ordem não encontrada para atualização: {id_number}")

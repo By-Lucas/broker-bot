@@ -65,7 +65,7 @@ class TradeOrderAdmin(ExportMixin, admin.ModelAdmin):
     fieldsets = (
         (
             "Identificação", {
-                "fields": ("content_type", "object_id", "id_trade", "uid")
+                "fields": ("broker", "id_trade", "uid")
             }
         ),
         (

@@ -108,7 +108,7 @@ def toggle_bot_status(request):
             # ✅ Alterna o status do robô
             quotex_account.is_bot_active = True
             quotex_account.save()
-
+            send_trade_update(quotex_account)
 
             return JsonResponse({
                 "success": True,

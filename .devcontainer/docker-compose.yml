@@ -9,17 +9,15 @@ services:
     volumes:
       - ..:/app:cached
     command: sleep infinity
-    # Atribuir a mesma rede para o container app
     networks:
       - app-network
-    # Se for usar env_file para ler variáveis ou environment inline:
-    # environment:
-    #   RABBITMQ_USER: "broker@gmail.com"
-    #   RABBITMQ_PASSWORD: "broker2024"
-    #   RABBITMQ_HOST: "rabbitmq"
-    #   RABBITMQ_PORT: "5672"
-    #   REDIS_HOST: "redis"
-    #   REDIS_PORT: "6379"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: broker
+      RABBITMQ_PASSWORD: broker2024
 
   db:
     image: postgres:15-alpine

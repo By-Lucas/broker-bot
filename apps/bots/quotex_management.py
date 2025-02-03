@@ -241,7 +241,8 @@ class QuotexManagement:
         except Exception:
             return {"status": False, "profit": 0}
         finally:
-            await self.client.close()
+            if self.client.check_connect():
+                await self.client.close()
 
 
     def update_loss_streak(self, trade_result):

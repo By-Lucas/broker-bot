@@ -2,6 +2,48 @@
 {% load static %}
 
 {% block content %}
+
+
+<style>
+    .block-neutral {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: max-content;
+        height: 24px;
+        padding: 2px 8px;
+        gap: 10px;
+        border-radius: 4px;
+        background: #c5c5c5c4;
+        color: #414040;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .block-pending {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: max-content;
+        height: 24px;
+        padding: 2px 8px;
+        gap: 10px;
+        border-radius: 4px;
+        background: #cdf1ffc4;
+        color: #042685;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+</style>
 <div class="main-content-inner">
     <!-- main-content-wrap -->
     <div class="main-content-wrap">
@@ -185,7 +227,7 @@
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        console.log("📡 Dados recebidos via WebSocket:", data);
+        // console.log("📡 Dados recebidos via WebSocket");
 
         if (!data.data.trade_details || !Array.isArray(data.data.trade_details)) {
             console.error("⚠ Nenhum trade disponível ou formato inválido.");
@@ -238,10 +280,25 @@
             winLossTable.innerHTML = "";
 
             data.data.trade_details.forEach((trade) => {
-                const itemClass = trade.order_result_status === "WIN" ? "block-available" : "block-not-available";
-                const statusText = trade.order_result_status === "WIN" ? "WIN" : "LOSS";
+                // Define as classes e textos com base no resultado da ordem
+                let itemClass;
+                let statusText;
 
-                const imageUrl = "/static/images/quotex.svg"; // URL direta para a imagem
+                if (trade.order_result_status === "WIN") {
+                    itemClass = "block-available"; // Classe para vitória
+                    statusText = "WIN"; // Texto para vitória
+                } else if (trade.order_result_status === "LOSS") {
+                    itemClass = "block-not-available"; // Classe para perda
+                    statusText = "LOSS"; // Texto para perda
+                } else if (trade.order_result_status === "DOGI") {
+                    itemClass = "block-neutral"; // Classe para empate (cinza)
+                    statusText = "EMPATE"; // Texto para empate
+                } else {
+                    itemClass = "block-pending"; // Classe para casos desconhecidos
+                    statusText = "PENDENTE"; // Texto para casos desconhecidos
+                }
+
+                const imageUrl = "/static/images/quotex.svg";
 
                 const item = `
                     <li class="product-item gap14">

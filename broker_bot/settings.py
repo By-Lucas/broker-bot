@@ -97,7 +97,10 @@ ASGI_APPLICATION = "broker_bot.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Atualize para o endereço do Redis
+        },
     },
 }
 
