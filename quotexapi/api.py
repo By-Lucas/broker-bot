@@ -467,7 +467,7 @@ class QuotexAPI(object):
     def close(self):
         if self.websocket_client:
             self.websocket.close()
-            # self.websocket_thread.join()
+            self.websocket_thread.join()
         return True
 
     def websocket_alive(self):

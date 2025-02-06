@@ -25,7 +25,7 @@ app.conf.beat_schedule = {
     # ✅ Tarefa: Agendar traders automáticos a cada 20 minutos
     'schedule-trades-every-20-minutes': {
         'task': 'bots.tasks.schedule_random_trades',
-        'schedule': crontab(minute='*/10'),  # A cada 20 minutos
+        'schedule': crontab(minute='*/5'),  # A cada 20 minutos
     },
 
     # ✅ Tarefa: Verificar e atualizar informações da Quotex a cada 5 horas

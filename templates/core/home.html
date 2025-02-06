@@ -48,6 +48,7 @@
     <!-- main-content-wrap -->
     <div class="main-content-wrap">
         <div class="tf-section-4 mb-30">
+            <div class="wg-chart-default-aviso" style="display: none;"></div>
             <!-- Só aparece quando acontecer lucro maximo 
             <div class="wg-chart-default-aviso">
                 <div class="flex items-center justify-between">
@@ -330,5 +331,64 @@
     };
 
 
+    // Conecta ao WebSocket de notificações
+    document.addEventListener("DOMContentLoaded", function () {
+        const notificationsContainer = document.querySelector(".wg-chart-default-aviso");
+
+        const socket = new WebSocket("ws://" + window.location.host + "/ws/notifications/");
+
+        socket.onopen = function () {
+            console.log("✅ WebSocket conectado com sucesso!");
+        };
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            // Exibe notificações baseadas no tipo
+            let notificationHTML = "";
+            
+            if (data.type === undefined ) {
+                return
+            }
+
+            if (data.type === "stop_gain" || data.type === "stop_loss") {
+                // Stop Gain/Stop Loss
+                const color = data.type === "stop_gain" ? "#28a745" : "#dc3545"; // Verde para Gain, Vermelho para Loss
+                notificationHTML = `
+                    <div class="flex items-center justify-between">
+                        <h6 class="white-color" style="color: ${color};">${data.title} - ${data.value ? `R$ ${data.value.toFixed(2)}` : ""}</h6>
+                    </div>
+                `;
+            } else if (data.type === "maximum_profit") {
+                // Lucro Máximo Atingido
+                notificationHTML = `
+                    <div class="flex items-center justify-between">
+                        <h6 class="white-color" style="color: #ffc107;">${data.title}</h6>
+                        ${data.url_redirect ? `<a href="${data.url_redirect}" class="tf-button w208">Falar com Suporte</a>` : ""}
+                    </div>
+                    ${data.description ? `<p style="color: #ffff;">${data.description}</p>` : ""}
+                `;
+            } else {
+                // Notificação genérica
+                notificationHTML = `
+                    <div class="flex items-center justify-between">
+                        <h6 class="white-color" style="color: #6c757d;">${data.title}</h6>
+                        ${data.url_redirect ? `<a href="${data.url_redirect}" class="tf-button w208">Ação</a>` : ""}
+                    </div>
+                    ${data.description ? `<p style="color: #ffff;">${data.description}</p>` : ""}
+                `;
+            }
+
+            // Exibe a notificação
+            notificationsContainer.style.display = "block";
+            notificationsContainer.innerHTML = notificationHTML;
+        };
+
+        socket.onclose = function () {
+            console.error("❌ WebSocket desconectado.");
+        };
+    });
+
 </script>
+
 {% endblock %}

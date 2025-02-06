@@ -5,6 +5,9 @@ import random
 from celery import shared_task
 from django.utils import timezone
 
+from notification.models import BaseNotification
+from notification.utils import send_notification_to_user
+
 from bots.services import send_trade_update
 from bots.utils import calculate_entry_amount, is_valid_trader
 from trading.models import TradeOrder
@@ -164,6 +167,8 @@ def schedule_random_trades():
             result = execute_random_trade.delay(qx.id, data)
 
     return f"{total} trades agendados com sucesso!"
+
+
 
 @shared_task
 def check_trade_status_task(trade_order_id):

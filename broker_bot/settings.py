@@ -51,6 +51,7 @@ PROJECT_APPS = [
     "customer",
     "quotexapi",
     "integrations",
+    "notification",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + PROJECT_APPS 

@@ -1,19 +1,18 @@
-from datetime import datetime, timedelta, timezone
-import json
 import os
+import json
+import random
 import asyncio
 from decimal import Decimal
-import random
 from asgiref.sync import sync_to_async
 
 from quotexapi.stable_api import Quotex
 from .constants import CUSTOM_PARITIES, PARITIES
 
-from integrations.models import QuotexManagement as QuotexManager
 from integrations.models import Quotex as Qx
+from integrations.models import QuotexManagement as QuotexManager
 
-from bots.utils import calculate_entry_amount, normalize_parities, wait_until_second
 from bots.services import create_trade_order_sync
+from bots.utils import calculate_entry_amount, normalize_parities, wait_until_second
 
 
 class QuotexManagement:
@@ -52,8 +51,60 @@ class QuotexManagement:
         else:
             self.listinfodata_dict = {}
 
-    async def send_connect(self, retries=3):
+
+    def remove_session_file(self, session_file):
+        """Remove o arquivo de sessão se ele estiver disponível."""
+        if os.path.exists(session_file):
+            os.remove(session_file)
+            print(f"[yellow]Arquivo de sessão {session_file} removido para nova tentativa.[/yellow]")
+
+    async def attempt_login(self, retries=4):
+        """
+        Tenta conectar ao Quotex para o bot específico, com tratamento de erros.
+        """
+        session_dir = os.path.join(os.path.dirname(__file__), "../user_sessions")
+        os.makedirs(session_dir, exist_ok=True)
+        session_file = os.path.join(session_dir, f"user_sessions/{self.email}_session.json")
+
+        if not self.client.check_connect():
+            self.remove_session_file(session_file)
+                    
+        for attempt in range(1, retries + 1):
+            try:
+                if asyncio.iscoroutinefunction(self.client.connect):
+                    await self.client.connect()  # Se for coroutine
+                else:
+                    self.client.connect()  # Se não for coroutine
+
+                if self.client.check_connect():
+                    return True
+                else:
+                    print(f"[red]Falha ao conectar para o usuário {self.email} na tentativa {attempt}.[/red]")
+            except asyncio.TimeoutError:
+                print(f"[red]Timeout ao tentar conectar para o usuário {self.email}.[/red]")
+            # except (WebSocketConnectionClosedException, asyncio.CancelledError) as e:
+            #     self.console.print(f"[red]Erro ao conectar para o usuário {self.email}: {e}[/red]")
+            #     # Remove o arquivo de sessão antes de tentar novamente
+            # except Exception as e:
+            #     self.console.print(f"[red]Erro ao conectar para o usuário {self.email}: {e}[/red]")
+            #     # Remove o arquivo de sessão antes de tentar novamente
+
+            self.remove_session_file(session_file)
+
+            await asyncio.sleep(5)  # Aguarda antes de tentar novamente
+
+        print(f"[red]Falha ao conectar após {retries} tentativas para o usuário {self.email}.[/red]")
+        return False
+
+    async def send_connect(self, retries=4):
         """Conecta ao Quotex com múltiplas tentativas."""
+        session_dir = os.path.join(os.path.dirname(__file__), "../user_sessions")
+        os.makedirs(session_dir, exist_ok=True)
+        session_file = os.path.join(session_dir, f"user_sessions/{self.email}_session.json")
+
+        if not self.client.check_connect():
+            self.remove_session_file(session_file)
+        
         for attempt in range(1, retries + 1):
             try:
                 check, reason = await self.client.connect()
@@ -61,8 +112,10 @@ class QuotexManagement:
                     print(f"✅ Conectado ao Quotex ({self.email}) na tentativa {attempt}.")
                     return True
                 print(f"⚠️ Falha ao conectar ({self.email}) na tentativa {attempt}: {reason or 'Sem motivo'}")
+                self.remove_session_file(session_file)
             except Exception as e:
                 print(f"❌ Erro ao conectar ({self.email}): {str(e)}")
+                self.remove_session_file(session_file)
             await asyncio.sleep(1)
         return False
 

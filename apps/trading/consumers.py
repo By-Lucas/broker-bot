@@ -59,14 +59,14 @@ class TradesConsumer(AsyncWebsocketConsumer):
         """ Obtém os dados de traders do usuário e retorna JSON formatado """
 
         # ✅ Buscar a conta Quotex do usuário de forma assíncrona
-        user_account = await sync_to_async(lambda: Quotex.objects.filter(customer_id=1).first())()
+        user_account = await sync_to_async(lambda: Quotex.objects.filter(customer_id=self.user.id, is_active=True).first())()
 
         if not user_account:
             return {"error": "Conta não encontrada para esta corretora."}
 
         # ✅ Filtrar apenas os trades do usuário e da corretora
         trades_list = await sync_to_async(lambda: list(
-            TradeOrder.objects.filter(broker=user_account).select_related("broker")
+            TradeOrder.objects.filter(broker=user_account, is_active=True).select_related("broker")
         ))()
 
         # ✅ Contagem total de trades e soma dos resultados
