@@ -1,5 +1,7 @@
 import json
 from decimal import Decimal
+from django.db.models import Sum
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from asgiref.sync import async_to_sync
@@ -15,7 +17,7 @@ def check_stop_gain_loss(sender, instance, **kwargs):
     """ 🚨 Verifica Stop Gain e Stop Loss quando o trader é atualizado. """
     
     # Somente executa quando um trade finalizado for atualizado
-    if instance.order_result_status not in ["WIN", "LOSS"]:
+    if instance.order_result_status not in ["WIN", "LOSS", "DOGI"]:
         return
 
     broker = instance.broker
@@ -31,8 +33,8 @@ def check_stop_gain_loss(sender, instance, **kwargs):
     total_result = TradeOrder.objects.filter(
         is_active=True,
         broker=broker,
-        order_result_status__in=["WIN", "LOSS"]
-    ).aggregate(total=Decimal("0.00"))["total"] or Decimal("0.00")
+        order_result_status__in=["WIN", "LOSS", "DOGI"]
+    ).aggregate(total=Sum("result"))["total"] or Decimal("0.00")
 
     print(f"🔍 Total atual: {total_result} | Stop Gain: {management.stop_gain} | Stop Loss: {management.stop_loss}")
 
