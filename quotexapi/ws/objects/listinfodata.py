@@ -60,11 +60,11 @@ class ListInfoData(Base):
                 else:
                     status = "DOGI"
 
-                TradeOrder.objects.filter(id=order.id).update(
-                    order_result_status=status,
-                    result=profit if profit is not None else order.result,
-                    status="EXECUTED"
-                )
+                # ✅ Atualiza os valores no objeto antes de salvar
+                order.order_result_status = status
+                order.result = profit if profit is not None else order.result
+                order.status = "EXECUTED"
+                order.save()  # 🔥 Aqui o signal `post_save` será acionado
 
                 # Atualiza o saldo da corretora
                 if profit is not None:
@@ -72,6 +72,7 @@ class ListInfoData(Base):
 
                 send_trade_update(order.broker)
                 print(f"Ordem atualizada com sucesso: {order.id_trade}")
+
             else:
                 print(f"Ordem não encontrada para atualização: {id_number}")
 

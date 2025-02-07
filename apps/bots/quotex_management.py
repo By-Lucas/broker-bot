@@ -39,17 +39,29 @@ class QuotexManagement:
         self.client.set_account_mode(balance_mode=account_type)
         self.load_from_json()
 
+    def save_to_json(self):
+        with open(self.json_file_path, "w", encoding="utf-8") as f:
+            json.dump(self.listinfodata_dict, f, ensure_ascii=False, indent=4)
 
     def load_from_json(self):
         if os.path.exists(self.json_file_path):
             try:
                 with open(self.json_file_path, "r", encoding="utf-8") as f:
-                    self.listinfodata_dict = json.load(f)
+                    file_content = f.read().strip()  # 🔥 Remove espaços em branco
+
+                    if not file_content:  # 🔥 Verifica se o JSON está vazio
+                        print("⚠ Arquivo JSON está vazio. Inicializando como dicionário vazio.")
+                        self.listinfodata_dict = {}
+                        return
+
+                    self.listinfodata_dict = json.loads(file_content)  # 🔥 Usa json.loads() em vez de json.load(f)
+
             except (json.JSONDecodeError, FileNotFoundError) as e:
-                print(f"Erro carregando JSON: {e}")
+                print(f"🚨 Erro carregando JSON: {e}")
                 self.listinfodata_dict = {}
         else:
             self.listinfodata_dict = {}
+
 
 
     def remove_session_file(self, session_file):
