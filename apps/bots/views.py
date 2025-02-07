@@ -64,7 +64,7 @@ def toggle_bot_status(request):
     if request.method == "GET":
         quotex_account = get_object_or_404(Quotex, customer=request.user)
 
-        if not quotex_account.is_bot_active:
+        if not quotex_account.is_active:
             return JsonResponse({
                 "success": False,
                 "is_bot_active": False,
@@ -86,7 +86,7 @@ def toggle_bot_status(request):
 
             quotex_account = get_object_or_404(Quotex, customer=request.user)
 
-            if not quotex_account.is_bot_active:
+            if not quotex_account.is_active:
                 return JsonResponse({
                     "success": False,
                     "is_bot_active": False,

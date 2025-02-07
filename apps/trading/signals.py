@@ -76,7 +76,7 @@ def check_stop_gain_loss(sender, instance, **kwargs):
 
     # 🚨 Se estiver em período de teste, desativa ao atingir qualquer valor
     if broker.test_period:
-        broker.is_active = False  # Desativa o robô em período de teste
+        # broker.is_active = False  # Desativa o robô em período de teste
         broker.save()
 
         notification = BaseNotification.objects.create(

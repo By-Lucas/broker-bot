@@ -167,7 +167,7 @@ class QuotexManagement:
 
         # 📌 Obtém informações básicas do trade
         email = data["email"]
-        duration = 30#data["duration"]
+        duration = 60#data["duration"]
         direction = data["direction"]
         broker_id = data["broker_id"]
 
