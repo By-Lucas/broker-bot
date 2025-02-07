@@ -136,6 +136,26 @@ class QuotexManagement:
         balance = await self.client.get_balance()
         await self.client.close()
         return balance
+    
+    async def get_payment_assets(self, retries=3) -> dict:
+        # 📌 Conecta ao Quotex
+        await self.send_connect()
+
+        payment_data = {}
+        for attempt in range(1, retries + 1):
+            try:
+                payment_data = self.client.get_payment()
+                if payment_data:
+                    break
+            except Exception as e:
+                print(f"❌ Erro ao conectar ({self.email}): {str(e)}")
+            if attempt == 2:
+                await self.send_connect()
+
+            await asyncio.sleep(1)
+        # await self.client.close()
+        return payment_data
+
 
     async def buy_sell(self, data: dict, retries=3):
         """
@@ -155,11 +175,8 @@ class QuotexManagement:
         qx = await sync_to_async(lambda: Qx.objects.get(id=broker_id))()
         qx_manager = await sync_to_async(lambda: QuotexManager.objects.filter(customer=qx.customer).first())()
 
-        # 📌 Conecta ao Quotex
-        await self.send_connect()
-
         # 🎯 Obtém a lista de pares disponíveis e seus payouts
-        payment_data = self.client.get_payment()
+        payment_data = await self.get_payment_assets()
 
         # ✅ Normaliza os pares de moedas e filtra pelos payouts
         normalized_assets = normalize_parities(payment_data)
@@ -182,6 +199,10 @@ class QuotexManagement:
             print(f"⛔ {email} SALDO INSUFICIENTE! Entrada: {amount}, Saldo: {available_balance}")
             await self.client.close()
             return None, {}
+        
+        if not self.client.check_connect():
+            # 📌 Conecta ao Quotex
+            await self.send_connect()
 
         # ⏳ Aguarda o segundo exato para enviar a ordem
         await wait_until_second(59)
