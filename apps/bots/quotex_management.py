@@ -275,7 +275,7 @@ class QuotexManagement:
         - Retorna um dicionário com o número de Loss seguidos e o prejuízo acumulado.
         """
         trades = await sync_to_async(lambda: list(
-            TradeOrder.objects.filter(broker=qx, order_result_status__in=["WIN", "LOSS"])
+            TradeOrder.objects.filter(broker=qx, order_result_status__in=["WIN", "LOSS"], is_active=True)
             .order_by("-created_at")[:limit]
         ))()
 
