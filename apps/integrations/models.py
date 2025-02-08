@@ -148,12 +148,12 @@ class QuotexManagement(models.Model):
         help_text="Ativar ou desativar o filtro de tendência."
     )
     martingale = models.PositiveIntegerField(
-        default=2,
+        default=0,
         verbose_name="Martingale",
         help_text="Número máximo de martingales permitidos."
     )
     factor_martingale = models.PositiveIntegerField(
-        default=2,
+        default=0,
         verbose_name="Fator Multiplicador Martingale",
         help_text="Valor multiplicador dos martingales permitidos."
     )

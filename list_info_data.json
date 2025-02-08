@@ -78,5 +78,50 @@
         "win": true,
         "game_state": 1,
         "profit": 27.436500000000002
+    },
+    "b6233079-c5f1-4b71-866a-7ff4d2cc7365": {
+        "win": true,
+        "game_state": 1,
+        "profit": 5.74
+    },
+    "d5eb63f9-fc3d-4fbd-aa82-795296bf6ae0": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.44
+    },
+    "f2482224-3d0c-4423-9c73-3ea371619b81": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.02
+    },
+    "8a06d50a-f9fc-4b68-8c8a-c03f327c9871": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.3
+    },
+    "988fccba-1e92-4a2e-92e7-6a22b0492eb0": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "bc799a74-c084-42bb-8771-35cd847cf771": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "85f6f26f-69b3-441f-9d88-838332f6ffee": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "bc97d153-fe00-44d1-aac7-6c5784b20281": {
+        "win": false,
+        "game_state": 1,
+        "profit": -7
+    },
+    "e4b6b84e-c14e-43b1-a474-db87a133da53": {
+        "win": true,
+        "game_state": 1,
+        "profit": 6.44
     }
 }

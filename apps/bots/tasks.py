@@ -37,7 +37,8 @@ def verify_and_update_quotex_task(quotex_id=None):
                 manager = BaseQuotex(
                     email=quotex.email,
                     password=quotex.password,
-                    account_type=quotex.account_type
+                    account_type=quotex.account_type,
+                    quotex_id=quotex_id
                 )
 
 
@@ -102,7 +103,8 @@ def execute_random_trade(quotex_id, data):
     manager = BaseQuotex(
         email=qx.email,
         password=qx.password,
-        account_type=qx.account_type
+        account_type=qx.account_type,
+        quotex_id=quotex_id
     )
 
     # Executar a operação
@@ -122,10 +124,11 @@ def schedule_random_trades():
     A cada 20 minutos, agenda trades aleatórios para clientes ativos na Quotex.
     Processa em lotes de 20 para evitar sobrecarga.
     """
-
     chunk_size = 20  # Processamos 20 contas por vez
     quotex_accounts = Quotex.objects.filter(is_active=True, is_bot_active=True)
     total = quotex_accounts.count()
+    if total == 0:
+        return
 
     for start in range(0, total, chunk_size):
         batch = quotex_accounts[start : start + chunk_size]
@@ -164,6 +167,7 @@ def schedule_random_trades():
             result = execute_random_trade.delay(qx.id, data)
 
     return f"{total} trades agendados com sucesso!"
+
 
 @shared_task
 def check_trade_status_task(trade_order_id):
