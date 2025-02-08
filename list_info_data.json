@@ -303,5 +303,25 @@
         "win": true,
         "game_state": 1,
         "profit": 40.05
+    },
+    "ba17686c-64c6-42e5-8a9f-4985ea6152fd": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "7266aa7e-36e9-4c0d-aaf8-391f6c674692": {
+        "win": true,
+        "game_state": 1,
+        "profit": 38.25
+    },
+    "989e7047-15c0-4a30-818d-96f1a14e8d65": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "5848edf6-9976-48af-92d5-6938d13ba029": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
     }
 }

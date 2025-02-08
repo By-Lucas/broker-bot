@@ -17,7 +17,7 @@ def check_stop_gain(sender, instance, **kwargs):
     """ 🚨 Verifica Stop Gain e período de teste ao atualizar um trade. """
     
     # Somente executa quando um trade finalizado for atualizado
-    if instance.order_result_status not in ["WIN", "LOSS", "DOGI"]:
+    if instance.order_result_status not in ["WIN", "LOSS"]:
         return
 
     broker = instance.broker
@@ -33,7 +33,7 @@ def check_stop_gain(sender, instance, **kwargs):
     total_result = TradeOrder.objects.filter(
         is_active=True,
         broker=broker,
-        order_result_status__in=["WIN", "LOSS", "DOGI"]
+        order_result_status__in=["WIN", "LOSS"]
     ).aggregate(total=Sum("result"))["total"] or Decimal("0.00")
 
     print(f"🔍 Total atual: {total_result} | Stop Gain: {management.stop_gain}")
