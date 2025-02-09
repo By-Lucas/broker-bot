@@ -48,6 +48,7 @@ PROJECT_APPS = [
     "bots",
     "core",
     "trading",
+    "callback",
     "customer",
     "quotexapi",
     "integrations",

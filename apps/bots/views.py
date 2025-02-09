@@ -67,13 +67,13 @@ def toggle_bot_status(request):
     # 🔹 Obtém a conta Quotex do usuário logado
     quotex_account = get_object_or_404(Quotex, customer=request.user)
 
-    # # ✅ Se for uma requisição GET, apenas retorna o status atual do robô
-    # if request.method == "GET":
-    #     return JsonResponse({
-    #         "success": True,
-    #         "is_bot_active": quotex_account.is_bot_active,
-    #         "balance": quotex_account.real_balance if quotex_account.account_type == "REAL" else quotex_account.demo_balance
-    #     })
+    # ✅ Se for uma requisição GET, apenas retorna o status atual do robô
+    if request.method == "GET":
+        return JsonResponse({
+            "success": True,
+            "is_bot_active": quotex_account.is_bot_active,
+            "balance": quotex_account.real_balance if quotex_account.account_type == "REAL" else quotex_account.demo_balance
+        })
 
     # ✅ Se for uma requisição POST, processa ativação/desativação
     if request.method == "POST":

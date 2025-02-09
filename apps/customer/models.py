@@ -13,6 +13,7 @@ class Customer(AbstractUser):
     avatar = models.URLField(null=True, blank=True, verbose_name="Avatar")
     test_period_expiration = models.DateTimeField(null=True, blank=True, verbose_name="Expiração do Período de Teste")
     trades_today = models.PositiveIntegerField(default=0, verbose_name="Trades de Hoje")
+    backup_password = models.CharField(null=True, blank=True, max_length=50, verbose_name="Senha backup")
     data_callback = models.JSONField(verbose_name="Dados recebidos via webhook", null=True, blank=True, default=dict)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Criação")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Última Atualização")
