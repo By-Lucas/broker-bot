@@ -39,10 +39,12 @@ class TradeOrderListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # 📊 Cálculo do lucro total nos últimos 30 dias
-        context["lucro_30_dias"] = round(TradeOrder.objects.filter(
+        lucro_30_dias = TradeOrder.objects.filter(
             created_at__gte=now() - timedelta(days=30),
             is_active=True
-        ).aggregate(total=Sum("result"))["total"], 2) or 0
+        ).aggregate(total=Sum("result"))["total"]
+        
+        context["lucro_30_dias"] = round(lucro_30_dias, 2) if lucro_30_dias else  0
 
         context["total_wins"] = TradeOrder.objects.filter(order_result_status="WIN").count()
         context["total_losses"] = TradeOrder.objects.filter(order_result_status="LOSS").count()
