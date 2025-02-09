@@ -3,6 +3,7 @@ import datetime
 from decimal import Decimal
 
 from django.utils import timezone
+from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 
 from .constants import PARITIES
@@ -43,7 +44,7 @@ def is_valid_trader(qx: Quotex, qx_manager:QuotexManagement):
 
     # 2. Se está no período de teste, validar a data de expiração
     if qx.test_period and qx.test_expiration:
-        if qx.test_expiration < datetime.datetime.now():
+        if qx.test_expiration < now():
             return False  # Teste expirado
 
     # 3. Obtém a moeda e saldo do cliente

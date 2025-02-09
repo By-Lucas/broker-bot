@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content-inner">
+    <!-- Main Content Wrap -->
+    <div class="main-content-wrap">
+        <div class="tf-section-4 mb-30">
+            
+            <!-- 📊 Lucro em 30 dias -->
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                            <i class="icon-dollar-sign"></i>
+                        </div>
+                        <div>
+                            <div class="body-text mb-2">LUCRO EM 30 DIAS</div>
+                            <h4 class="yellow-color">R$ {{ lucro_30_dias }}</h4>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtro de Período -->
+                    <form method="GET" class="dropdown default">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <span class="view-all">Período<i class="icon-chevron-down"></i></span>
+                        </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a href="?period=7">7 dias</a></li>
+                            <li><a href="?period=30">30 dias</a></li>
+                            <li><a href="?period=60">60 dias</a></li>
+                        </ul>
+                        <div class="box-icon-trending up">
+                            <i class="icon-trending-up"></i>
+                            <div class="body-title number">{{ win_rate }}%</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 📊 Estatísticas de WINS, LOSS e WIN RATE -->
+            <div class="wg-chart-default">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap14">
+                        <div class="image">
+                            <i class="icon-bar-chart-2"></i>
+                        </div>
+                        <div>
+                            <div class="body-text mb-2">WINS</div>
+                            <h4 class="wins-color">{{ total_wins }}</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap14">
+                        <div>
+                            <div class="body-text mb-2">LOSS</div>
+                            <h4 class="loss-color">{{ total_losses }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap14">
+                        <div>
+                            <div class="body-text mb-2">WIN RATE</div>
+                            <h4 class="white-color">{{ win_rate }}%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- 📋 Filtros -->
+        <form method="GET" class="mb-20">
+            <div class="flex gap14">
+                <select name="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="WIN" {% if request.GET.status == "WIN" %}selected{% endif %}>WIN</option>
+                    <option value="LOSS" {% if request.GET.status == "LOSS" %}selected{% endif %}>LOSS</option>
+                    <option value="DOGI" {% if request.GET.status == "DOGI" %}selected{% endif %}>DOGI</option>
+                </select>
+                <input type="date" name="date_start" class="form-control" value="{{request.GET.date_start}}">
+                <input type="date" name="date_end" class="form-control" value="{{request.GET.date_end}}">
+                <button type="submit" class="tf-button">Filtrar</button>
+            </div>
+        </form>
+
+        <div class="tf-section">
+            <!-- 📋 Histórico de Traders -->
+            <div class="wg-box">
+                <div class="wg-table table-product-overview">
+                    <ul class="table-title flex gap20 mb-14">
+                        <li><div class="body-title">Ativo</div></li>
+                        <li><div class="body-title">Entrada</div></li>
+                        <li><div class="body-title">Resultado</div></li>
+                        <li><div class="body-title">Data</div></li>
+                        <li><div class="body-title">Status</div></li>
+                    </ul>
+
+                    <ul class="flex flex-column gap10">
+                        {% for trade in trade_orders %}
+                        <li class="product-item gap14">
+                            <div class="flex items-center justify-between flex-grow">
+                                <div class="body-text">{{ trade.asset_order }}</div>
+                                <div class="body-text">R$ {{ trade.amount }}</div>
+                                <div class="body-text">
+                                    R$ {{ trade.result }}
+                                </div>
+                                <div class="body-text">{{ trade.created_at|date:"d/m/Y H:m" }}</div>
+                                <div class="
+                                            {% if trade.order_result_status == 'WIN' %}block-available
+                                            {% elif trade.order_result_status == 'LOSS' %}block-not-available
+                                            {% elif trade.order_result_status == 'DOGI' %}block-pending
+                                            {% else %}block-pending
+                                            {% endif %}">{{ trade.order_result_status }}</div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="text-center"><div class="body-text">Nenhuma operação encontrada.</div></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔄 Paginação -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; Primeira</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
