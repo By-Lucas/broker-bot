@@ -1,3 +1,4 @@
+import decimal
 import json
 from decimal import Decimal
 from asgiref.sync import async_to_sync
@@ -9,6 +10,7 @@ from django.http import JsonResponse
 from django.utils.timezone import now
 from django.views.generic import UpdateView
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -168,44 +170,75 @@ def toggle_bot_status(request):
 
 
 
+
+@method_decorator(csrf_exempt, name="dispatch")
 class QuotexManagementUpdateView(LoginRequiredMixin, UpdateView):
     model = QuotexManagement
-    fields = ["management_type", "stop_gain", "stop_loss", "stop_loss_type", "entry_value"]
-    template_name = "bots/modal-quotex-management-form.html"
+    fields = ["management_type", "stop_gain", "stop_loss", "entry_value", "martingale"]
+    template_name = "bots/quotex_management_config.html"
+
 
     def get_object(self, queryset=None):
         """Retorna o gerenciamento do usuário logado"""
         return get_object_or_404(QuotexManagement, customer=self.request.user)
-
-    def get(self, request, *args, **kwargs):
-        """Retorna JSON se for uma requisição AJAX, senão renderiza o HTML"""
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         obj = self.get_object()
 
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":  # 🔥 Verifica se é AJAX
-            data = {
-                "management_type": obj.management_type,
-                "stop_gain": str(obj.stop_gain),
-                "stop_loss": str(obj.stop_loss),
-                "stop_loss_type": obj.stop_loss_type,
-                "entry_value": str(obj.entry_value),
-            }
-            return JsonResponse(data)
+        # Força o uso de ponto decimal ao invés de vírgula
+        context["object"].entry_value = str(obj.entry_value).replace(",", ".")
+        context["object"].stop_gain = str(obj.stop_gain).replace(",", ".")
+        context["object"].stop_loss = str(obj.stop_loss).replace(",", ".")
+        context["object"].martingale = str(obj.martingale)
+        return context
 
-        # Se não for AJAX, renderiza o modal normalmente
-        return render(request, self.template_name, {"object": obj})
 
     def post(self, request, *args, **kwargs):
         """Processa a atualização via AJAX"""
         self.object = self.get_object()
         data = request.POST.dict()
 
-        # Converte valores numéricos corretamente
-        for field in ["stop_gain", "stop_loss", "entry_value"]:
-            if field in data:
-                try:
-                    data[field] = Decimal(data[field])
-                except ValueError:
-                    return JsonResponse({"success": False, "error": f"Valor inválido para {field}."})
+        customer = self.request.user
+        is_test_period = customer.quotex_account.test_period  # Verifica se está no período de teste
+        balance = customer.quotex_account.real_balance if customer.quotex_account.account_type == "REAL" else customer.quotex_account.demo_balance
+
+         # Validação para BRL (Reais)
+        if self.object.customer.quotex_account.currency_symbol == "R$" and data.get("management_type") == "PERSONALIZADO":  # Verifica se o saldo é em BRL
+            if float(data.get("entry_value", 0)) < 5:
+                return JsonResponse({"success": False, "message": "O valor de entrada não pode ser menor que R$5,00."})
+            if float(data.get("stop_gain", 0)) < 5:
+                return JsonResponse({"success": False, "message": "A meta de lucro não pode ser menor que R$5,00."})
+            if float(data.get("stop_loss", 0)) < 5:
+                return JsonResponse({"success": False, "message": "O limite de perda não pode ser menor que R$5,00."})
+
+        # 🚀 Se estiver em período de teste, forçamos o gerenciamento para "Moderado" e bloqueamos os campos
+        if is_test_period:
+            data["management_type"] = "MODERADO"
+            return JsonResponse({"success": False, "message": "Você está no período de teste. Apenas o gerenciamento Moderado está disponível."})
+
+        # 🚀 Se não for "Personalizado", apenas permite alterar o valor de entrada e ajusta Stop Gain e Stop Loss como 4% da banca
+        if data.get("management_type") != "PERSONALIZADO":
+            data["stop_gain"] = balance * Decimal("0.04")  # 4% da banca
+            data["stop_loss"] = balance * Decimal("0.04")  # 4% da banca
+            data["entry_value"] = balance * Decimal("0.01")  # 4% da banca
+            data["martingale"] = 0
+            if data["entry_value"] < 5:
+                data["entry_value"] = 5
+            if balance >= 700:
+                data["entry_value"] = balance * Decimal("0.02")  # 4% da banca
+                data["stop_gain"] = balance * Decimal("0.08")  # 4% da banca
+                data["stop_loss"] = balance * Decimal("0.08")  # 4% da banca
+        else:
+            # Conversão e validação de valores numéricos
+            for field in ["stop_gain", "stop_loss", "entry_value"]:
+                if field in data:
+                    try:
+                        if not data[field]:  # Verifica se o campo está vazio
+                            return JsonResponse({"success": False, "message": f"O campo {field} não pode estar vazio."})
+                        data[field] = Decimal(data[field])  # Converte o valor para Decimal
+                    except (ValueError, decimal.InvalidOperation):
+                        return JsonResponse({"success": False, "message": f"Valor inválido para {field}: {data[field]}."})
 
         # Atualiza os campos permitidos
         for field in self.fields:
@@ -213,4 +246,4 @@ class QuotexManagementUpdateView(LoginRequiredMixin, UpdateView):
                 setattr(self.object, field, data[field])
 
         self.object.save()
-        return JsonResponse({"success": True, "message": "Gerenciamento atualizado com sucesso!"})
+        return JsonResponse({"success": True, "message": "Configuração atualizada com sucesso!"})

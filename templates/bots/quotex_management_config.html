@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+
+{% block content %}
+<div class="main-content-inner">
+    <div class="main-content-wrap" style="display: flex; justify-content: space-between;">
+
+        <!-- 🔹 Seção da esquerda -->
+        <form id="update-quotex-management" class="tf-section-1 form-add-product" style="flex: 1;" >
+            <div class="wg-box">
+                <h4>Configurações</h4>
+
+                <fieldset class="brand">
+                    <div class="body-title mb-10">Selecione um gerenciamento <span class="tf-color-1">*</span></div>
+                    <div class="select">
+                        <select name="management_type" id="management_type">
+                            <option value="CONSERVADOR" {% if object.management_type == "CONSERVADOR" %}selected{% endif %}>Conservador</option>
+                            <option value="MODERADO" {% if object.management_type == "MODERADO" %}selected{% endif %}>Moderado</option>
+                            <option value="ALAVANCAGEM" {% if object.management_type == "ALAVANCAGEM" %}selected{% endif %}>Alavancagem</option>
+                            <option value="PERSONALIZADO" {% if object.management_type == "PERSONALIZADO" %}selected{% endif %}>Personalizado</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset class="brand">
+                    <div class="body-title mb-10">Ativar filtro de precisão?<span class="tf-color-1">*</span></div>
+                    <div class="select">
+                        <select name="trend_filter">
+                            <option value="False" {% if not object.trend_filter %}selected{% endif %}>Não</option>
+                            <option value="True" {% if object.trend_filter %}selected{% endif %}>Sim</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset class="brand">
+                    <div class="body-title mb-10">Ativar Filtro de Lucro imediato?<span class="tf-color-1">*</span></div>
+                    <div class="select">
+                        <select name="profit_filter">
+                            <option value="True">Sim</option>
+                            <option value="False">Não</option>
+                        </select>
+                    </div>
+                    <div class="body-title mb-10" style="margin-top: 10px;">
+                        <span class="" style="font-size: 0.9em;">Ative esse filtro se quiser lucro RÁPIDO</span>
+                    </div>
+                </fieldset>
+
+                <fieldset class="brand">
+                    <button type="submit" class="tf-button flex-grow full-width" id="update-button">Confirmar</button>
+                </fieldset>  
+                
+                <div id="message-container"></div> <!-- Para exibir mensagens -->
+            </div>
+        </form>
+
+        <!-- 🔹 Seção da direita -->
+        <form id="update-quotex-management-personalized" class="tf-section-1 form-add-product" style="flex: 1;">
+            <div class="wg-box">
+                <h4>Modo Personalizado</h4>
+                <fieldset class="name custom-fields">
+                    <div class="body-title mb-10">Valor da operação <span class="tf-color-1">*</span></div>
+                    <input id="entry_value" class="mb-10" type="number" name="entry_value" min="5" step="0.01" value="{{ object.entry_value }}">
+                </fieldset>
+                <fieldset class="name custom-fields">
+                    <div class="body-title mb-10">Martingale <span class="tf-color-1">*</span></div>
+                    <input id="martingale" class="mb-10" type="number" name="martingale" min="0" step="1" value="{{ object.martingale }}">
+                </fieldset>
+                <fieldset class="name custom-fields">
+                    <div class="body-title mb-10">Meta de lucro <span class="tf-color-1">*</span></div>
+                    <input id="stop_gain" class="mb-10" type="number" name="stop_gain" min="5" step="0.01" value="{{ object.stop_gain|replace_comma }}">
+                </fieldset>
+                <fieldset class="name custom-fields">
+                    <div class="body-title mb-10">Limite de perda <span class="tf-color-1">*</span></div>
+                    <input id="stop_loss" class="mb-10" type="number" name="stop_loss" min="5" step="0.01" value="{{ object.stop_loss|replace_comma }}">
+                </fieldset>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    function toggleFields() {
+        let selectedManagement = $("#management_type").val();
+        let isTestPeriod = "{{ object.customer.quotex_account.test_period }}";
+        let balance = parseFloat("{{ object.customer.quotex_account.real_balance|default:0 }}");
+
+        if (isTestPeriod === "True") {
+            $("#management_type").val("MODERADO").prop("disabled", true);
+            $(".custom-fields input").prop("disabled", true);
+            $(".custom-fields").hide();
+            return;
+        }
+
+        // Normaliza os campos numéricos substituindo vírgula por ponto
+        $(this).find('input[type="number"]').each(function () {
+            const value = $(this).val();
+            $(this).val(value.replace(",", "."));
+        });
+
+        if (selectedManagement === "PERSONALIZADO") {
+            $(".custom-fields").show();
+            $(".custom-fields input").prop("disabled", false);
+        } else {
+            $(".custom-fields").hide();
+            $(".custom-fields input").prop("disabled", true);
+
+            // Calcula Stop Gain e Stop Loss como 4% da banca
+            $("#stop_gain").val((balance * 0.04).toFixed(2));
+            $("#stop_loss").val((balance * 0.04).toFixed(2));
+        }
+    }
+
+    $("#management_type").change(toggleFields);
+    toggleFields();
+
+    $("#update-quotex-management").submit(function(event) {
+        event.preventDefault();
+
+        // Coleta os dados de ambos os formulários
+        let formData = $("#update-quotex-management").serialize();
+        let customFormData = $("#update-quotex-management-personalized").serialize();
+
+        let combinedData = formData + "&" + customFormData;
+
+        $.ajax({
+            url: "{% url 'bot:quotex_management_update' %}",
+            type: "POST",
+            data: combinedData,
+            headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+            success: function(response) {
+                if (response.success == false){
+                    $("#message-container").html(`<p style="color: red;">❌ ${response.message}</p>`);
+                } else{
+                    $("#message-container").html(`<p style="color: green;">✅ ${response.message}</p>`);
+                }
+
+            },
+            error: function(xhr, status, error) {
+                console.log(error)
+                $("#message-container").html(`<p style="color: red;">❌ ${error}</p>`);
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.body-title.mb-10 span {
+    font-size: 0.9em;
+    font-weight: normal;
+    color: yellow;
+}
+
+.full-width {
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .main-content-wrap {
+        flex-direction: row;
+        margin-right: 0;
+    }
+    .form-add-product {
+        margin-right: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content-wrap {
+        flex-direction: column;
+    }
+    .form-add-product {
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+}
+</style>
+{% endblock %}

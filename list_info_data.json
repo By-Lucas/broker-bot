@@ -823,5 +823,90 @@
         "win": true,
         "game_state": 1,
         "profit": 40.5
+    },
+    "611795f1-2fa7-4761-8901-e1485fa94306": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "97de880a-0a0a-4de5-be85-a0b21a3872be": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "f0739e4f-63ca-476a-960d-02e6c3c4f9ee": {
+        "win": true,
+        "game_state": 1,
+        "profit": 0
+    },
+    "73fc74d8-9b2f-4df4-8da2-4bfac201b5e5": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "986b0bf0-ba10-4598-8579-c7677bf37462": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "1697982b-7e0f-46d5-ae68-d228c30fa3f7": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "9f6fd158-c43e-43ee-8e06-caf4412c6a67": {
+        "win": true,
+        "game_state": 1,
+        "profit": 36
+    },
+    "3865c1e1-7f25-4087-908a-0de730fc8814": {
+        "win": false,
+        "game_state": 1,
+        "profit": -45
+    },
+    "9bdc377f-fcbd-41ea-9a97-e561208c22d1": {
+        "win": true,
+        "game_state": 1,
+        "profit": 17.6
+    },
+    "236ad45c-cf01-4828-93c0-3d5a2c8b512b": {
+        "win": false,
+        "game_state": 1,
+        "profit": -22
+    },
+    "301c9490-fe45-476d-bf95-2ca11b1a015c": {
+        "win": true,
+        "game_state": 1,
+        "profit": 17.16
+    },
+    "ecf484a9-e3be-46e5-b765-2abd5afc56bc": {
+        "win": true,
+        "game_state": 1,
+        "profit": 68.53
+    },
+    "49257642-d4a5-48df-967b-22817d70773a": {
+        "win": false,
+        "game_state": 1,
+        "profit": -77
+    },
+    "07610d5f-dc85-4f35-a88b-f1f0316f6dca": {
+        "win": true,
+        "game_state": 1,
+        "profit": 62.123999999999995
+    },
+    "fbf6ea44-81ef-43b3-9065-626f6b939e20": {
+        "win": true,
+        "game_state": 1,
+        "profit": 60.788000000000004
+    },
+    "4eae94de-026e-45ed-b77f-24b6868785db": {
+        "win": false,
+        "game_state": 1,
+        "profit": -66.8
+    },
+    "cd38f1b1-e8be-47e2-8b54-c723dab9f87b": {
+        "win": false,
+        "game_state": 1,
+        "profit": -66.8
     }
 }
