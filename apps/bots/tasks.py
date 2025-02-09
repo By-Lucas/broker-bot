@@ -60,6 +60,7 @@ def verify_and_update_quotex_task(quotex_id=None):
                 quotex.trader_id = profile_id
                 quotex.demo_balance = demo_balance
                 quotex.real_balance = real_balance
+                quotex.real_balance = real_balance
                 quotex.currency_symbol = currency_symbol
 
                 # ✅ Valida saldo mínimo para operar
@@ -74,9 +75,9 @@ def verify_and_update_quotex_task(quotex_id=None):
                 # ✅ Atualiza os dados do cliente associado
                 customer = quotex.customer
                 customer.country = country_name
-                customer.trader_id = profile_id
+                customer.trader_id = profile_id if not profile_id else customer.trader_id
                 customer.avatar = avatar
-                customer.data_callback = profile_data  # Armazena dados do perfil
+                customer.data_callback = profile_data
                 customer.save()
 
                 print(f"✅ Quotex atualizado: {quotex.email}")

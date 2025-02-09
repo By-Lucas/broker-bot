@@ -27,6 +27,6 @@ class QuotexCallbackDataAdmin(admin.ModelAdmin):
             "fields": ("trader_id", "status", "payout", "created_at")
         }),
         ("Detalhes do Callback", {
-            "fields": ("event_id", "click_id", "site_id", "link_id")
+            "fields": ("event_id", "click_id", "site_id", "link_id", "release_without_validation")
         }),
     )

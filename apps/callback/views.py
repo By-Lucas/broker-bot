@@ -17,6 +17,7 @@ def quotex_callback(request):
         trader_id = data.get("uid")
         payout = data.get("payout")
         event_id = data.get("eid")
+        link_id = data.get("lid")
 
         if not trader_id:
             return JsonResponse({"success": False, "error": "Trader ID ausente."})
@@ -24,11 +25,11 @@ def quotex_callback(request):
         # Atualiza ou salva o callback associado ao trader_id
         callback_data, _ = QuotexCallbackData.objects.update_or_create(
             trader_id=trader_id,
+            link_id=link_id,
             defaults={
                 "event_id": event_id,
                 "click_id": data.get("cid"),
                 "site_id": data.get("sid"),
-                "link_id": data.get("lid"),
                 "status": data.get("status"),
                 "payout": payout,
             },

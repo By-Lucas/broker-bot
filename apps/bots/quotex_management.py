@@ -94,14 +94,16 @@ class QuotexManagement:
         return False
 
     async def get_balance(self):
-        await self.send_connect()
+        if not await self.send_connect():
+            return 0
         balance = await self.client.get_balance()
         await self.client.close()
         return balance
     
     async def get_payment_assets(self, retries=3) -> dict:
         # 📌 Conecta ao Quotex
-        await self.send_connect()
+        if not await self.send_connect():
+            return {}
 
         payment_data = {}
         for attempt in range(1, retries + 1):
@@ -334,8 +336,6 @@ class QuotexManagement:
         # 4️⃣ Se não houver sequência de perdas, mantém a entrada base
         return float(base_entry)
 
-
-
     async def verify_trader(self, trader_id: str):
         """Verifica o status de um trade."""
         #wait self.send_connect()
@@ -350,7 +350,6 @@ class QuotexManagement:
             if self.client.check_connect():
                 await self.client.close()
 
-
     def update_loss_streak(self, trade_result):
         """Atualiza o controle de sequência de Loss e prejuízo acumulado."""
         if trade_result["status"] is False or trade_result["profit"] < 0:
@@ -360,20 +359,20 @@ class QuotexManagement:
             self.loss_streak = 0
             self.accumulated_loss = Decimal("0.00")
     
-
-    async def get_profile(self) -> dict:
-        await self.send_connect()
+    async def get_profile(self, retries=2) -> dict:
+        self.send_connect(retries=retries)
+        
         profile = await self.client.get_profile()
         if profile:
             if self.account_type.upper() in ["REAL", "PRACTICE"] and float(profile.live_balance) >= 1 or float(profile.demo_balance):
-               
                 profile_data = {
                     "broker_id": 1,
                     "email":self.email,
                     "profile_id": profile.profile_id,
                     "nick_name": profile.nick_name,
                     "avatar": profile.avatar,
-                    "offset": profile.offset,
+                    "avatar": profile.avatar,
+                    "minimum_amount": profile.minimum_amount,
                     "country_name": profile.country_name,
                     "demo_balance": profile.demo_balance,
                     "live_balance": profile.live_balance,
