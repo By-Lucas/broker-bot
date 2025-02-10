@@ -94,8 +94,7 @@ class QuotexManagement:
         return False
 
     async def get_balance(self):
-        if not await self.send_connect():
-            return 0
+        await self.send_connect()
         balance = await self.client.get_balance()
         await self.client.close()
         return balance
