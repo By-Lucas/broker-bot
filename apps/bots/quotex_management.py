@@ -302,10 +302,9 @@ class QuotexManagement:
 
         base_entry = Decimal(qx_manager.entry_value)  # Entrada padrão do gerenciamento
         stop_win = Decimal(qx_manager.stop_gain)  # Meta de lucro
-        banca_inicial = Decimal(qx.real_balance if qx.account_type == "REAL" else qx.demo_balance)  # Saldo atual
         banca = Decimal(qx.real_balance if qx.account_type == "REAL" else qx.demo_balance)  # Saldo atual
         payout_decimal = Decimal(str(payout)) / 100  # Convertendo payout para decimal (ex: 80% -> 0.80)
-        
+
         # Entrada mínima baseada na moeda
         entry_minima = Decimal("5") if qx.currency_symbol == "R$" else Decimal("1")
 
@@ -318,15 +317,15 @@ class QuotexManagement:
 
         # 1️⃣ Se o trader perdeu 3 vezes seguidas, ajustamos para recuperação
         if loss_streak >= 3:
-            # 🔥 Valor necessário para atingir o Stopwin: (stopwin + banca_inicial - banca)
-            valor_para_stopwin = max(Decimal("0"), (stop_win + banca_inicial) - banca)
+            # 🔥 Valor necessário para recuperar as perdas e atingir o Stop Win
+            valor_para_recuperacao = accumulated_loss + stop_win
 
             # 🔥 Entrada necessária, ajustada pelo payout:
-            entrada_necessaria = valor_para_stopwin / payout_decimal
+            entrada_necessaria = valor_para_recuperacao / payout_decimal
 
-            print(f"⚡ Entrada Calculada: {entrada_necessaria}, Entrada Mínima: {entry_minima}")
+            print(f"⚡ Entrada Necessária: {entrada_necessaria}, Entrada Mínima: {entry_minima}")
 
-            # 2️⃣ Se o saldo for menor que o valor necessário, entra com tudo
+            # 2️⃣ Se o saldo for menor que o valor necessário, entra com todo o saldo disponível
             if entrada_necessaria > banca:
                 return float(banca)
 
@@ -335,6 +334,7 @@ class QuotexManagement:
 
         # 4️⃣ Se não houver sequência de perdas, mantém a entrada base
         return float(base_entry)
+
 
     async def verify_trader(self, trader_id: str):
         """Verifica o status de um trade."""
@@ -360,7 +360,7 @@ class QuotexManagement:
             self.accumulated_loss = Decimal("0.00")
     
     async def get_profile(self, retries=2) -> dict:
-        self.send_connect(retries=retries)
+        await self.send_connect(retries=retries)
         
         profile = await self.client.get_profile()
         if profile:
