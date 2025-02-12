@@ -59,7 +59,7 @@
                 </div>
             </div> -->
             <!-- chart-default -->
-            <div class="wg-chart-default">
+            <!-- <div class="wg-chart-default">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap14">
                         <div class="image">
@@ -85,7 +85,7 @@
                     </div>
                 </div>
                
-            </div>
+            </div> -->
             
             <!-- chart-default -->
             <div class="wg-chart-default">
@@ -247,7 +247,7 @@
         const balanceData = data.data.account_balance || { type: "DESCONHECIDO", balance: 0, currency: "R$" };
 
         if (accountTypeElement) {
-            accountTypeElement.innerText = `CONTA ${balanceData.type}`;
+            accountTypeElement.innerText = `CONTA {% if request.user.is_superuser %} REAL {% else %} ${balanceData.type} {% endif %}`;
         }
 
         if (accountBalanceElement) {

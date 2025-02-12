@@ -124,37 +124,37 @@
 
     <script>
         $(document).ready(function () {
-    $("#submit-activate-account").click(function () {
-        const formData = $("#activate-account-form").serialize(); // Serializa os dados do formulário
-        const button = $("#submit-activate-account"); // Obtém o botão
+            $("#submit-activate-account").click(function () {
+                const formData = $("#activate-account-form").serialize(); // Serializa os dados do formulário
+                const button = $("#submit-activate-account"); // Obtém o botão
 
-        // ✅ Desabilita o botão e altera o texto para "Processando..."
-        button.prop("disabled", true).text("Processando...");
+                // ✅ Desabilita o botão e altera o texto para "Processando..."
+                button.prop("disabled", true).text("Processando...");
 
-        $.ajax({
-            url: "{% url 'customer:activate_account' %}", // Substitua pelo nome correto da URL
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                if (response.success) {
-                    $("#message-container").html(`<p style="color: green;">${response.message}</p>`);
-                    setTimeout(() => {
-                        window.location.href = "{% url 'core:home' %}"; // Redireciona para a home
-                    }, 2000);
-                } else {
-                    $("#message-container").html(`<p style="color: red;">${response.error}</p>`);
-                }
-            },
-            error: function (xhr, status, error) {
-                $("#message-container").html(`<p style="color: red;">Erro no servidor: ${error}</p>`);
-            },
-            complete: function () {
-                // ✅ Reativa o botão e restaura o texto original
-                button.prop("disabled", false).text("Validar");
-            }
+                $.ajax({
+                    url: "{% url 'customer:activate_account' %}", // Substitua pelo nome correto da URL
+                    type: "POST",
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $("#message-container").html(`<p style="color: green;">${response.message}</p>`);
+                            setTimeout(() => {
+                                window.location.href = "{% url 'core:home' %}"; // Redireciona para a home
+                            }, 2000);
+                        } else {
+                            $("#message-container").html(`<p style="color: red;">${response.error}</p>`);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        $("#message-container").html(`<p style="color: red;">Erro no servidor: ${error}</p>`);
+                    },
+                    complete: function () {
+                        // ✅ Reativa o botão e restaura o texto original
+                        button.prop("disabled", false).text("Validar");
+                    }
+                });
+            });
         });
-    });
-});
 
     </script>
 

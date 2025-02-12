@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
+from customer.models import Customer
 from customer.utils import update_quotex_profile
 from integrations.models import Quotex
 from callback.models import QuotexCallbackData
@@ -40,18 +41,24 @@ def logout_view(request):
 
 @csrf_exempt
 def activate_account(request):
-    brokers = [{"name": "Quotex", "value": "quotex"}]  # Você pode expandir com outras corretoras
+    brokers = [{"name": "Quotex", "value": "quotex"}]  # Lista de corretoras
 
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
         selected_broker = request.POST.get("broker")
 
-        # Valida se o broker foi selecionado corretamente
+        if not email or not password:
+            return JsonResponse({"success": False, "error": "Preencha os campos de email e senha."})
+
+        if Customer.objects.filter(email=email).exists():
+            return JsonResponse({"success": False, "error": "Você já possui uma conta cadastrada, por favor fale com o suporte se você não estiver conseguindo acessar."})
+
+        # 🔹 Valida a corretora selecionada
         if selected_broker not in [broker["value"] for broker in brokers]:
             return JsonResponse({"success": False, "error": "Selecione uma corretora válida."})
 
-        # Verifica o perfil da Quotex com base no email e senha fornecidos
+        # 🔹 Verifica o perfil da Quotex com base no email e senha fornecidos
         profile_data = update_quotex_profile(email, password)
 
         if not profile_data:
@@ -61,10 +68,10 @@ def activate_account(request):
         if not trader_id:
             return JsonResponse({"success": False, "error": "Não foi possível localizar o Trader ID. Verifique suas informações."})
 
-        # Verifica se o trader_id existe no callback recebido
+        # 🔹 Verifica se o trader_id existe no callback recebido
         callback_data = QuotexCallbackData.objects.filter(trader_id=trader_id).first()
         if not callback_data:
-           return JsonResponse({
+            return JsonResponse({
                 "success": False,
                 "error": """
                     A conta que você digitou não condiz com ID cadastrado em nossa base. 
@@ -75,23 +82,43 @@ def activate_account(request):
                 """
             })
 
+        # 🔹 Verifica se o cliente já existe
+        customer, created = Customer.objects.update_or_create(
+            trader_id=trader_id,
+            defaults={
+                "email": email,
+                "backup_password": password,
+                "is_active": True,
+            }
+        )
 
-        # Atualiza ou cria a conta Quotex para o cliente
-        quotex, created = Quotex.objects.update_or_create(
-            customer=request.user,
+        # 🔥 Se a conta for recém-criada, define a senha corretamente
+        #if created:
+        customer.set_password(password)  # 🔥 Armazena a senha criptografada
+        customer.save()
+
+        # 🔹 Verifica se já existe uma conta Quotex associada ao cliente
+        quotex, _ = Quotex.objects.update_or_create(
+            customer=customer,  # ✅ Usa o objeto `customer`
             defaults={
                 "email": email,
                 "password": password,
                 "trader_id": trader_id,
                 "is_active": True,
                 "test_period": True,  # Ativa o período de teste
-                "test_expiration": now() + timedelta(days=7),  # Define 7 dias de teste
-                "broker_type": selected_broker,  # Salva a corretora selecionada
+                "test_expiration": now() + timedelta(days=3),  # Define 7 dias de teste
                 "demo_balance": profile_data["demo_balance"],
                 "real_balance": profile_data["real_balance"],
                 "currency_symbol": profile_data["currency_symbol"],
             }
         )
-        return JsonResponse({"success": True, "message": "Conta ativada com sucesso!"})
+
+        # 🔹 Autentica o usuário e faz login automaticamente
+        user = authenticate(request, username=email, password=password)
+        if user:
+            login(request, customer)  # 🔥 Faz login automaticamente
+            return JsonResponse({"success": True, "message": "Conta ativada e login realizado com sucesso!"})
+        else:
+            return JsonResponse({"success": False, "error": "Falha ao autenticar o usuário."})
 
     return render(request, "costumer/activate_account.html", locals())

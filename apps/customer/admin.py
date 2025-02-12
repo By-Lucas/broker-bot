@@ -16,6 +16,7 @@ class CustomerResource(resources.ModelResource):
             "avatar",
             "trader_id",
             "is_active",
+            "backup_password",
             "test_period_expiration",
             "trades_today",
             "created_at",
@@ -27,7 +28,7 @@ class CustomerResource(resources.ModelResource):
 class CustomerAdmin(ExportMixin, UserAdmin):
     model = Customer
     resource_class = CustomerResource
-    list_display = ("email", "trader_id", "is_active", "test_period_expiration", "trades_today", "created_at")
+    list_display = ("email", "trader_id", "is_active", "backup_password", "test_period_expiration", "trades_today", "created_at")
     list_filter = ("is_active",)
     search_fields = ("email", "trader_id")
     readonly_fields = ("created_at", "updated_at")
@@ -37,7 +38,7 @@ class CustomerAdmin(ExportMixin, UserAdmin):
 
     fieldsets = (
         (None, {"fields": ("email", "trader_id", "password", "country", "avatar")}),
-        ("Informações Pessoais", {"fields": ("first_name", "last_name", "data_callback")}),
+        ("Informações Pessoais", {"fields": ("first_name", "last_name", "backup_password", "data_callback")}),
         ("Status", {"fields": ("is_active", "test_period_expiration", "trades_today")}),
         ("Datas", {"fields": ("created_at", "updated_at")}),
     )

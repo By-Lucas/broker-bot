@@ -7,5 +7,6 @@ urlpatterns = [
     path("", include("core.urls", namespace="core")),
     path("", include("customer.urls", namespace="customer")),
     path("bot/", include("bots.urls", namespace="bot")),
+    path("callback/", include("callback.urls", namespace="callback")),
     path("trading/", include("trading.urls", namespace="trading")),
 ]

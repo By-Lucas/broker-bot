@@ -82,7 +82,7 @@ def check_stop_gain(sender, instance, **kwargs):
             user=customer,
             type="maximum_profit",
             title="🎯 Meta atingida no período de teste!",
-            description=f"Parabéns! Você atingiu {total_result} durante seu período de teste.",
+            description=f"Parabéns! Você atingiu {round(total_result, 2)} durante seu período de teste.",
             is_active=True,
         )
 

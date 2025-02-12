@@ -12,3 +12,6 @@ class QuotexCallbackData(models.Model):
     release_without_validation = models.BooleanField(default=False,  verbose_name="Liberar sen validação do ID do link",
                                                      help_text="Esta flag é para poder liberar o acesso ao usuario sem precisar validar o link de onde ele veio")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Criação")
+
+    def __str__(self):
+        return str(self.trader_id)

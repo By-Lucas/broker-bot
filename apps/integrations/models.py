@@ -68,7 +68,7 @@ class Quotex(models.Model):
     def save(self, *args, **kwargs):
         # Gera o slug baseado no email e trader_id
         if not self.slug:
-            self.slug = slugify(f"{self.customer.email}-{self.trader_id}")
+            self.slug = slugify(f"quotex-{self.trader_id}")
         super().save(*args, **kwargs)
     
     
