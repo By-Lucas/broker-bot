@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Sum, Count, DateField
 from django.db.models.functions import TruncDate
 
+from integrations.models import Quotex
 from trading.models import TradeOrder
 
 
@@ -19,7 +20,8 @@ class TradeOrderListView(ListView):
 
     def get_queryset(self):
         """Filtra traders ativos e aplica filtros de data e status"""
-        queryset = TradeOrder.objects.filter(is_active=True).order_by("-created_at")
+        broker = Quotex.objects.filter(customer=self.request.user).first()
+        queryset = TradeOrder.objects.filter(broker=broker,is_active=True).order_by("-created_at")
 
         # 🔍 Filtros da URL
         status_filter = self.request.GET.get("status")
@@ -37,17 +39,18 @@ class TradeOrderListView(ListView):
     def get_context_data(self, **kwargs):
         """Adiciona informações extras ao contexto"""
         context = super().get_context_data(**kwargs)
-
+        broker = Quotex.objects.filter(customer=self.request.user).first()
         # 📊 Cálculo do lucro total nos últimos 30 dias
         lucro_30_dias = TradeOrder.objects.filter(
+            broker=broker,
             created_at__gte=now() - timedelta(days=30),
             is_active=True
         ).aggregate(total=Sum("result"))["total"]
         
         context["lucro_30_dias"] = round(lucro_30_dias, 2) if lucro_30_dias else  0
 
-        context["total_wins"] = TradeOrder.objects.filter(order_result_status="WIN").count()
-        context["total_losses"] = TradeOrder.objects.filter(order_result_status="LOSS").count()
+        context["total_wins"] = TradeOrder.objects.filter(broker=broker, order_result_status="WIN").count()
+        context["total_losses"] = TradeOrder.objects.filter(broker=broker, order_result_status="LOSS").count()
 
         # 📊 Calcula Win Rate
         total_trades = context["total_wins"] + context["total_losses"]
@@ -64,8 +67,10 @@ class DailyResultsListView(ListView):
 
     def get_queryset(self):
         """ Agrupa os resultados diários e calcula lucro, WINS e LOSSES """
+        broker = Quotex.objects.filter(customer=self.request.user).first()
+
         queryset = (
-            TradeOrder.objects.filter(is_active=True, order_result_status__in=["WIN", "LOSS"])
+            TradeOrder.objects.filter(broker=broker, is_active=True, order_result_status__in=["WIN", "LOSS"])
             .annotate(date=TruncDate("created_at"))
             .values("date")
             .annotate(
@@ -80,9 +85,10 @@ class DailyResultsListView(ListView):
     def get_context_data(self, **kwargs):
         """ Adiciona o lucro total consolidado ao contexto """
         context = super().get_context_data(**kwargs)
+        broker = Quotex.objects.filter(customer=self.request.user).first()
 
         # 🔢 Calcula o lucro total consolidado
-        total_profit = TradeOrder.objects.filter(is_active=True, order_result_status__in=["WIN", "LOSS"]).aggregate(
+        total_profit = TradeOrder.objects.filter(broker=broker, is_active=True, order_result_status__in=["WIN", "LOSS"]).aggregate(
             total=Sum("result")
         )["total"] or 0
 
