@@ -55,6 +55,7 @@ class TradeOrderAdmin(ExportMixin, admin.ModelAdmin):
     )
     search_fields = (
         "id_trade",
+        "broker__customer__email",
         "uid",
         "order_type",
         "is_active",

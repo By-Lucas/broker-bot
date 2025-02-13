@@ -1,4 +1,5 @@
 {% load static %}
+
 <style>
     .menu-link {
     pointer-events: auto;
@@ -67,7 +68,7 @@
             id="logo_header" 
             alt="Logo Flash Bot" 
             src="{% static 'images/logo/logo-dark.png' %}" 
-            data-light="{% static 'images/logo/logo-dark.png' %}" 
+            data-light="{% static 'images/logo/logo-flash.png' %}" 
             data-dark="{% static 'images/logo/logo-dark.png' %}">
     </a>
     <div class="button-show-hide">
@@ -167,56 +168,6 @@
         const pauseBotButton = document.getElementById("pause-bot");
         const toggleUrl = "/bot/api/toggle-bot-status/";
 
-        function setLoadingState(button, isLoading) {
-            if (isLoading) {
-                button.dataset.defaultHTML = button.innerHTML; // Salva o conteúdo original
-                button.innerHTML = `<span class="loader"></span> ${button.dataset.defaultHTML}`; // Adiciona o spinner
-                
-                // 🔥 Mantém a cor correta e desabilita o botão corretamente
-                button.querySelector(".text").style.opacity = "0.6"; // Diminui a opacidade do texto
-                button.querySelector(".icon i").style.opacity = "0.6"; // Diminui a opacidade do ícone
-                button.querySelector(".text").style.color = "#6c757d"; // Ícone cinza
-                button.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
-
-            } else {
-                button.innerHTML = button.dataset.defaultHTML; // Restaura o conteúdo original
-                
-                // 🔥 Remove a opacidade reduzida e mantém a cor correta
-                button.querySelector(".text").style.opacity = "1"; // Restaura a opacidade do texto
-                button.querySelector(".icon i").style.opacity = "1"; // Restaura a opacidade do ícone
-                button.querySelector(".text").style.color = "#6c757d"; // Texto cinza
-                button.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
-            }
-        }
-
-
-        function updateButtonStates(isBotActive) {
-            if (isBotActive) {
-                // 🔥 Se o robô está ativo:
-                startBotButton.classList.add("disabled"); // Desativa o botão "Iniciar"
-                pauseBotButton.classList.remove("disabled"); // Habilita o botão "Pausar"
-
-                // 🔥 Aplica a cor correta ao texto e ícone
-                startBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
-                startBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
-
-                pauseBotButton.querySelector(".text").style.color = "#dc3545"; // Vermelho ativo
-                pauseBotButton.querySelector(".icon i").style.color = "#dc3545"; // Ícone vermelho
-
-            } else {
-                // 🔥 Se o robô está inativo:
-                startBotButton.classList.remove("disabled"); // Habilita o botão "Iniciar"
-                pauseBotButton.classList.add("disabled"); // Desativa o botão "Pausar"
-
-                // 🔥 Aplica a cor correta ao texto e ícone
-                startBotButton.querySelector(".text").style.color = "#28a745"; // Verde ativo
-                startBotButton.querySelector(".icon i").style.color = "#28a745"; // Ícone verde
-
-                pauseBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
-                pauseBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
-            }
-        }
-
         async function getBotStatus() {
             try {
                 const response = await fetch(toggleUrl, { method: "GET" });
@@ -253,70 +204,28 @@
             } catch (error) {
                 console.error("Erro ao alternar o status do robô:", error);
             }
-
             
         }
 
         startBotButton.addEventListener("click", function (event) {
             event.preventDefault();
             if (!startBotButton.classList.contains("disabled")) {
-                toggleBotStatus(startBotButton, true); // 🔥 Ativar robô
+                startBotButton.classList.add("disabled"); // 🔥 Bloqueia imediatamente
+                toggleBotStatus(startBotButton, true);
             }
         });
 
         pauseBotButton.addEventListener("click", function (event) {
             event.preventDefault();
             if (!pauseBotButton.classList.contains("disabled")) {
-                toggleBotStatus(pauseBotButton, false); // 🔥 Pausar robô
+                pauseBotButton.classList.add("disabled"); // 🔥 Bloqueia imediatamente
+                toggleBotStatus(pauseBotButton, false);
             }
         });
 
         getBotStatus();
     });
 
-
-    $(document).ready(function () {
-        // Função para obter o token CSRF
-        function getCSRFToken() {
-            return document.querySelector("[name=csrfmiddlewaretoken]").value;
-        }
-
-        $("#openManagementModal").click(function () {
-            $("#quotexManagementModal").modal("show");
-
-            // Busca os dados do gerenciamento do usuário
-            $.get("{% url 'bot:quotex_management_update' %}", function (data) {
-                console.log("🎯 Dados recebidos:", data); // Debug
-
-                $("#management_type").val(data.management_type);
-                $("#stop_gain").val(data.stop_gain);
-                $("#stop_loss").val(data.stop_loss);
-                $("#stop_loss_type").val(data.stop_loss_type);
-                $("#entry_value").val(data.entry_value);
-            });
-        });
-
-        // Enviar os dados via AJAX com CSRF Token
-        $("#quotex-management-form").submit(function (event) {
-            event.preventDefault();
-            const formData = $(this).serialize();
-
-            $.ajax({
-                url: "{% url 'bot:quotex_management_update' %}",
-                type: "POST",
-                data: formData,
-                headers: { "X-CSRFToken": getCSRFToken() },  // 🔥 Adicionando o CSRF Token no Header
-                success: function (response) {
-                    console.log("✅ Resposta do servidor:", response);
-                    alert("Configurações atualizadas com sucesso!");
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ Erro no AJAX:", error);
-                    alert("Erro ao atualizar configurações.");
-                }
-            });
-        });
-    });
 
     </script>
     

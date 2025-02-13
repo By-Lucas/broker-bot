@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -10,3 +12,4 @@ urlpatterns = [
     path("callback/", include("callback.urls", namespace="callback")),
     path("trading/", include("trading.urls", namespace="trading")),
 ]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

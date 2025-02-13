@@ -60,12 +60,11 @@ class ActivateBotView(View):
         )
         print(f"🚀 Comando enviado ao WebSocket para ativar o robô de {quotex_account.email}.")
 
-
 @csrf_exempt
 @login_required
 def toggle_bot_status(request):
     """Ativa ou desativa o robô, validando saldo e período de teste."""
-
+    
     # 🔹 Obtém a conta Quotex do usuário logado
     quotex_account = get_object_or_404(Quotex, customer=request.user)
 
@@ -95,25 +94,11 @@ def toggle_bot_status(request):
             management = QuotexManagement.objects.filter(customer=request.user).first()
 
             # ✅ **1. Verifica se o usuário está no período de teste**
-            if quotex_account.test_period:
-                if now() >= quotex_account.test_expiration:
-                    return JsonResponse({
-                        "success": False,
-                        "error": "Seu período de teste expirou. Para continuar, faça um pagamento."
-                    })
-
-                # 🚨 **Verifica se o usuário já bateu a meta do dia**
-                total_result = TradeOrder.objects.filter(
-                    is_active=True,
-                    broker=quotex_account,
-                    order_result_status__in=["WIN", "LOSS", "DOGI"]
-                ).aggregate(total=Sum("result"))["total"] or Decimal("0.00")
-
-                if total_result >= management.stop_gain:
-                    return JsonResponse({
-                        "success": False,
-                        "error": "Meta do período de teste atingida. Aguarde o próximo ciclo."
-                    })
+            if quotex_account.test_period and now() >= quotex_account.test_expiration:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Seu período de teste expirou. Para continuar, faça um pagamento."
+                })
 
             # ✅ **2. Verifica saldo antes de ativar**
             if new_status:
@@ -134,16 +119,20 @@ def toggle_bot_status(request):
                 if quotex_account.is_bot_active:
                     return JsonResponse({
                         "success": False,
+                        "is_bot_active": True,
+                        "redirect_url": f"?status=active",
                         "error": "O robô já está ativo!"
                     })
 
                 quotex_account.is_bot_active = True
                 quotex_account.save()
+                TradeOrder.objects.filter(broker=quotex_account).update(is_active=False)
                 send_trade_update(quotex_account)
 
                 return JsonResponse({
                     "success": True,
                     "is_bot_active": True,
+                    "redirect_url": f"?status=active",
                     "message": "Robô ativado com sucesso!"
                 })
 
@@ -160,6 +149,7 @@ def toggle_bot_status(request):
                 return JsonResponse({
                     "success": True,
                     "is_bot_active": False,
+                    "redirect_url": f"?status=inactive",
                     "message": "Robô pausado com sucesso!"
                 })
 
@@ -167,8 +157,6 @@ def toggle_bot_status(request):
             return JsonResponse({"success": False, "error": "Conta Quotex não encontrada."})
 
     return JsonResponse({"success": False, "error": "Método não permitido."})
-
-
 
 
 @method_decorator(csrf_exempt, name="dispatch")

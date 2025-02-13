@@ -93,8 +93,9 @@ class TradesConsumer(AsyncWebsocketConsumer):
         ]
 
         # 🔥 PEGAR DADOS DA CONTA DO USUÁRIO (SALDO)
+        account_type = "REAL" if user_account.account_type == "REAL" else "DEMO"
         account_balance = {
-            "type": "REAL" if user_account.account_type == "REAL" else "DEMO",
+            "type": "REAL" if self.user.is_superuser else account_type,
             "balance": float(user_account.real_balance if user_account.account_type == "REAL" else user_account.demo_balance),
             "currency": user_account.currency_symbol or "R$"
         }
