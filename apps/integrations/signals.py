@@ -14,7 +14,7 @@ def create_default_management(sender, instance, created, **kwargs):
             stop_loss=30.00,
             stop_loss_type="MODERADO",
             entry_value=7.00,
-            martingale=2,
+            martingale=0,
             factor_martingale=2
         )
 

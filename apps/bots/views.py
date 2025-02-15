@@ -178,7 +178,7 @@ class QuotexManagementUpdateView(LoginRequiredMixin, UpdateView):
         context["object"].entry_value = str(obj.entry_value).replace(",", ".")
         context["object"].stop_gain = str(obj.stop_gain).replace(",", ".")
         context["object"].stop_loss = str(obj.stop_loss).replace(",", ".")
-        context["object"].martingale = str(obj.martingale)
+        #context["object"].martingale = str(obj.martingale)
         return context
 
 
