@@ -83,11 +83,11 @@ socket.onmessage = function (event) {
             const tradeRow = `
                 <tr>
                     <td><input class="form-check-input" type="checkbox"></td>
-                    <td>${new Date(trade.timestamp * 1000).toLocaleDateString("pt-BR")}</td>
                     <td>${trade.asset_order || "N/A"}</td>
                     <td>${balanceData.currency} ${trade.amount ? trade.amount.toFixed(2) : "--"}</td>
                     <td>${balanceData.currency} ${trade.result ? trade.result.toFixed(2) : "--"}</td>
                     <td class="${statusClass}">${statusText}</td>
+                    <td>${trade.close_time}</td>
                     <td><a class="btn btn-sm btn-primary" href="#">Detalhes</a></td>
                 </tr>
             `;

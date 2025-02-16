@@ -87,6 +87,7 @@ class TradesConsumer(AsyncWebsocketConsumer):
                 "amount": float(trade.amount),
                 "percent_profit": float(trade.percent_profit),
                 "result": float(trade.result),
+                "close_time": trade.close_time.strftime("%d/%m/%Y %H:%M"),
                 "broker_email": trade.broker.email if trade.broker else "N/A",
             }
             for trade in trades_list

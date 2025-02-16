@@ -538,5 +538,10 @@
         "win": true,
         "game_state": 1,
         "profit": 4.45
+    },
+    "27adb6eb-883e-436b-9e3f-cc6a6b85d6d9": {
+        "win": false,
+        "game_state": 1,
+        "profit": -5
     }
 }

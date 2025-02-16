@@ -7,27 +7,28 @@
     <div class="row g-4">
         <div class="col-sm-6 col-xl-3">
             <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                <i class="fa fa-chart-line fa-3x text-primary"></i>
+                <i class="fa fa-wallet fa-3x text-success"></i> <!-- 🏦 Ícone de carteira/banca -->
                 <div class="ms-3">
-                    <p class="mb-2">Banca atual</p>
+                    <p class="mb-2">Banca Atual</p>
                     <h6 class="mb-0" id="account-balance">R$ 0,00</h6>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                <i class="fa fa-chart-bar fa-3x text-primary"></i>
+                <i class="fa fa-chart-line fa-3x text-warning"></i> <!-- 📈 Ícone de variação financeira -->
                 <div class="ms-3">
-                    <p class="mb-2">Resultado hoje</p>
+                    <p class="mb-2">Resultado Hoje</p>
                     <h6 class="mb-0">
                         <span id="total-results">R$ 0,00</span>&ensp;- 
-                        <span class="text-warning" id="win-rate">0%</span></h6>
+                        <span class="text-warning" id="win-rate">0%</span>
+                    </h6>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                <i class="fa fa-chart-area fa-3x text-primary"></i>
+                <i class="fa fa-trophy fa-3x text-success"></i> <!-- 🏆 Ícone de vitória -->
                 <div class="ms-3">
                     <p class="mb-2">Vitórias</p>
                     <h6 class="mb-0" id="wins-count">R$ 0,00</h6>
@@ -36,9 +37,9 @@
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                <i class="fa fa-chart-pie fa-3x text-primary"></i>
+                <i class="fa fa-times-circle fa-3x text-danger"></i> <!-- ❌ Ícone de perda -->
                 <div class="ms-3">
-                    <p class="mb-2">Percas</p>
+                    <p class="mb-2">Perdas</p>
                     <h6 class="mb-0" id="loss-count">R$ 0,00</h6>
                 </div>
             </div>
@@ -73,11 +74,11 @@
                 <thead>
                     <tr class="text-white">
                         <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                        <th scope="col">Data</th>
                         <th scope="col">Par de Moeda</th>
                         <th scope="col">Valor</th>
                         <th scope="col">Resultado</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Data</th>
                         <th scope="col">Ação</th>
                     </tr>
                 </thead>
@@ -88,5 +89,9 @@
         </div>
     </div>
 </div>
+
+<!-- footer -->
+{% include 'core/widgets.html' %}
+<!-- End footer -->
 
 {% endblock %}
