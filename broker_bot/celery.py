@@ -35,21 +35,16 @@ app.conf.beat_schedule = {
         'args': []  # Pode ser chamado com argumentos caso necessário
     },
 
+
+    # ✅ Tarefa: Backup do banco de dados 4 vezes ao dia
+    'backup-database-four-times-a-day': {
+        'task': 'core.tasks.backup_database',
+        'schedule': crontab(minute="*/10"),#crontab(minute=0, hour='0,6,12,18'),  # 🔹 Roda 4 vezes ao dia
+    },
+
     # # ✅ Tarefa: Verificar período de teste dos clientes a cada 5 horas
-    # 'check-trial-status-every-5-hours': {
-    #     'task': 'permissions.tasks.check_trial_status_task',
-    #     'schedule': crontab(minute=0, hour='*/5'),
-    # },
-
-    # # ✅ Tarefa: Monitorar as operações dos usuários a cada 30 minutos
-    # 'monitor-user-trades-every-30-minutes': {
-    #     'task': 'permissions.tasks.monitor_user_trades_task',
-    #     'schedule': crontab(minute='*/30'),
-    # },
-
-    # # ✅ Tarefa: Backup do banco de dados 4 vezes ao dia
-    # 'backup-database-four-times-a-day': {
-    #     'task': 'core.tasks.backup_database',
-    #     'schedule': crontab(minute=0, hour='0,6,12,18'),
-    # },
+    "check-expired-test-accounts-every-2-hours": {
+        "task": "integrations.tasks.check_expired_test_accounts",
+        "schedule": crontab(minute="*/10"),  # ,minute=0, hour="*/2" Roda a cada 2 horas
+    },
 }

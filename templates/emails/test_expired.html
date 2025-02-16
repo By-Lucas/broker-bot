@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu Período de Teste Expirou</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        .header img {
+            max-width: 150px;
+        }
+        .content {
+            text-align: center;
+            padding: 20px;
+        }
+        .content h2 {
+            color: #007bff;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .cta-button:hover {
+            background: #218838;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 🔹 Cabeçalho -->
+        <div class="header">
+            <img src="https://yourdomain.com/static/images/logo/logo-flash.png" alt="Logo Flash Bot">
+        </div>
+
+        <!-- 🔹 Conteúdo -->
+        <div class="content">
+            <h2>Seu Período de Teste Expirou! 🚀</h2>
+            <p>Olá, <strong>{{ customer_name }}</strong>,</p>
+            <p>Esperamos que tenha aproveitado sua experiência com nosso robô! Durante seu período de teste, 
+                você teve acesso a uma **ferramenta poderosa** que pode ajudar a aumentar seus lucros e facilitar suas operações.</p>
+            <p>Para continuar aproveitando os benefícios e **não perder oportunidades**, ative seu plano agora!</p>
+
+            <!-- 🔹 Botão CTA -->
+            <a href="https://yourdomain.com/assinatura" class="cta-button">Ativar Agora</a>
+        </div>
+
+        <!-- 🔹 Rodapé -->
+        <div class="footer">
+            <p>Se tiver dúvidas, entre em contato com nosso suporte em <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+            <p>&copy; 2024 Flash Bot - Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

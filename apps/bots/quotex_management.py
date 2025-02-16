@@ -93,11 +93,15 @@ class QuotexManagement:
             await asyncio.sleep(2)
         return False
 
-    async def get_balance(self):
-        await self.send_connect()
-        balance = await self.client.get_balance()
-        await self.client.close()
-        return balance
+    async def get_balance(self) -> Decimal:
+        balance = 0
+        if not self.client.check_connect():
+            await self.send_connect()
+            balance = await self.client.get_balance()
+            await self.client.close()
+        else:
+            balance = await self.client.get_balance()
+        return Decimal(balance)
     
     async def get_payment_assets(self, retries=3) -> dict:
         # 📌 Conecta ao Quotex
@@ -301,7 +305,7 @@ class QuotexManagement:
 
         base_entry = Decimal(qx_manager.entry_value)  # Entrada padrão do gerenciamento
         stop_win = Decimal(qx_manager.stop_gain)  # Meta de lucro
-        banca = Decimal(qx.real_balance if qx.account_type == "REAL" else qx.demo_balance)  # Saldo atual
+        banca = await self.get_balance()#Decimal(qx.real_balance if qx.account_type == "REAL" else qx.demo_balance)  # Saldo atual
         payout_decimal = Decimal(str(payout)) / 100  # Convertendo payout para decimal (ex: 80% -> 0.80)
 
         # Entrada mínima baseada na moeda
