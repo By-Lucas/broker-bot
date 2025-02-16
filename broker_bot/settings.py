@@ -199,5 +199,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'brokerbotshub@gmail.com'
 EMAIL_HOST_PASSWORD = 'xrwv ythq ibaf bvxe'
+DEFAULT_SUPPORT_EMAIL = 'brokerbotshub@gmail.com'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
