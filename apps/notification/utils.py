@@ -2,7 +2,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 
-def send_notification_to_user(user_id, notification):
+def send_notification_to_user(user_id):
     """
     Envia uma notificação ao WebSocket do usuário específico.
     """
@@ -12,11 +12,8 @@ def send_notification_to_user(user_id, notification):
         {
             "type": "send_notification",
             "notification": {
-                "title": notification.title,
-                "description": notification.description,
-                "html_content": notification.html_content,
-                "url_redirect": notification.url_redirect,
-                "type": notification.type,
+                "user_id":user_id,
+                "type":"clean_notification"
             },
         }
     )

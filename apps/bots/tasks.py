@@ -110,7 +110,8 @@ def execute_random_trade(quotex_id, data):
 
     # Executar a operação
     status_buy, info_buy = asyncio.run(manager.buy_sell(data))
-
+    if status_buy:
+        qx.demo_balance = info_buy.get("accountBalance")
 
     return {
         "email": qx.email,

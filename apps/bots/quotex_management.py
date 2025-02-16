@@ -163,11 +163,11 @@ class QuotexManagement:
             amount = await self.calculate_dynamic_entry(qx, qx_manager, payout)  # Calcula a entrada padrão
 
         # 📌 Garante que o saldo seja suficiente antes de operar
-        available_balance = qx.real_balance if qx.account_type == "REAL" else qx.demo_balance
-        if float(amount) > available_balance:
-            print(f"⛔ {email} SALDO INSUFICIENTE! Entrada: {amount}, Saldo: {available_balance}")
-            await self.client.close()
-            return None, {}
+        # available_balance = qx.real_balance if qx.account_type == "REAL" else qx.demo_balance
+        # if float(amount) > available_balance:
+        #     print(f"⛔ {email} SALDO INSUFICIENTE! Entrada: {amount}, Saldo: {available_balance}")
+        #     await self.client.close()
+        #     return None, {}
 
         # 📌 Verifica o mínimo de entrada permitido
         min_entry_value = 5.0 if qx.currency_symbol == "R$" else 1.0  # R$ 5 para Reais, $1 para outras moedas

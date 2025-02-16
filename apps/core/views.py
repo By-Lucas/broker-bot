@@ -11,7 +11,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        check_expired_test_accounts()
         # Adicionando dados dinâmicos
         context["lucro_hoje"] = 1422.00  # Exemplo de valor dinâmico
         context["wins"] = 23

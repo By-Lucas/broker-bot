@@ -105,5 +105,5 @@ socket.onclose = function () {
     // Tente reconectar automaticamente
     setTimeout(() => {
         window.location.reload();
-    }, 3000);
+    }, 30000);
 };

@@ -12,11 +12,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        console.log(data)
 
         if (!data.type) {
             console.error("⚠ Notificação inválida recebida.");
             return;
         }
+
+
+        if (data.type === "clean_notification") {
+            notificationsContainer.style.display = "none"
+            return;
+        }
+        
 
         let notificationHTML = "";
         let shouldDisableBot = false; // Flag para definir se o robô será desativado

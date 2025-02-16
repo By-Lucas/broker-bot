@@ -15,6 +15,8 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from notification.utils import send_notification_to_user
+from notification.models import BaseNotification
 from trading.models import TradeOrder
 from bots.services import send_trade_update
 from bots.tasks import verify_and_update_quotex_task
@@ -132,7 +134,14 @@ def toggle_bot_status(request):
                 quotex_account.is_bot_active = True
                 quotex_account.save()
                 TradeOrder.objects.filter(broker=quotex_account).update(is_active=False)
+               
                 send_trade_update(quotex_account)
+                notification = BaseNotification.objects.filter(user=quotex_account.customer, is_active=True, type__in=[
+                    "access_interrupted", "stop_gain", "stop_loss", "maximum_profit", "insuficient_amount", "expire_trial", "login_error", "credentials_error"
+                ])
+                if notification:
+                    notification = notification.update(is_active=False)
+                    send_notification_to_user(quotex_account.customer.id)
 
                 return JsonResponse({
                     "success": True,
