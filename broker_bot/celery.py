@@ -45,6 +45,6 @@ app.conf.beat_schedule = {
     # # ✅ Tarefa: Verificar período de teste dos clientes a cada 5 horas
     "check-expired-test-accounts-every-2-hours": {
         "task": "integrations.tasks.check_expired_test_accounts",
-        "schedule": crontab(minute="*/10"),  # ,minute=0, hour="*/2" Roda a cada 2 horas
+        "schedule": crontab(minute=0, hour="*/5"),  # ,minute=0, hour="*/2" Roda a cada 2 horas
     },
 }
