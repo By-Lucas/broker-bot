@@ -39,7 +39,7 @@ app.conf.beat_schedule = {
     # ✅ Tarefa: Backup do banco de dados 4 vezes ao dia
     'backup-database-four-times-a-day': {
         'task': 'core.tasks.backup_database',
-        'schedule': crontab(minute="*/10"),#crontab(minute=0, hour='0,6,12,18'),  # 🔹 Roda 4 vezes ao dia
+        'schedule': crontab(minute=0, hour='0,6,12,18'),#crontab(minute=0, hour='0,6,12,18'),  # 🔹 Roda 4 vezes ao dia
     },
 
     # # ✅ Tarefa: Verificar período de teste dos clientes a cada 5 horas

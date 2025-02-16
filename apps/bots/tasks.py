@@ -83,9 +83,9 @@ def verify_and_update_quotex_task(quotex_id=None):
                 print(f"✅ Quotex atualizado: {quotex.email}")
 
             except KeyError as e:
-                print(f"🚨 Erro de chave ausente: {str(e)}")
+                return {"status": "error", "message": f"🚨 Erro de chave ausente: {str(e)}"}
             except Exception as e:
-                print(f"🚨 Erro ao processar {quotex.email}: {str(e)}")
+                return {"status": "error", "message": f"🚨 Erro ao processar {quotex.email}: {str(e)}"}
 
     return {"status": "success", "updated_accounts": total_accounts}
 

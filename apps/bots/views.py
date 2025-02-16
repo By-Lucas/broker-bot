@@ -102,7 +102,12 @@ def toggle_bot_status(request):
 
             # ✅ **2. Verifica saldo antes de ativar**
             if new_status:
-                verify_and_update_quotex_task(quotex_account.id)
+                result = verify_and_update_quotex_task(quotex_account.id)
+                if result.get("error", None):
+                    return JsonResponse({
+                        "success": False,
+                        "error": result.get("message")
+                    })
             quotex_account.refresh_from_db()  # Atualiza os dados do banco
 
             min_balance = Decimal("5") if quotex_account.account_type == "REAL" else Decimal("1")
