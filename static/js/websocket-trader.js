@@ -53,49 +53,46 @@ socket.onmessage = function (event) {
         winRateElement.innerText = `${winRate}%`;
     }
 
-    // ✅ Atualizar tabela de WIN e LOSS
+    // Atualizar a tabela de WIN e LOSS
     const winLossTable = document.querySelector("#win-loss-table");
     if (winLossTable) {
         winLossTable.innerHTML = "";
 
         data.data.trade_details.forEach((trade) => {
-            // Define as classes e textos com base no resultado da ordem
-            let itemClass;
+            let statusClass;
             let statusText;
 
-            if (trade.order_result_status === "WIN") {
-                itemClass = "block-available"; // Classe para vitória
-                statusText = "WIN"; // Texto para vitória
-            } else if (trade.order_result_status === "LOSS") {
-                itemClass = "block-not-available"; // Classe para perda
-                statusText = "LOSS"; // Texto para perda
-            } else if (trade.order_result_status === "DOGI") {
-                itemClass = "block-neutral"; // Classe para empate (cinza)
-                statusText = "EMPATE"; // Texto para empate
-            } else {
-                itemClass = "block-pending"; // Classe para casos desconhecidos
-                statusText = "PENDENTE"; // Texto para casos desconhecidos
+            switch (trade.order_result_status) {
+                case "WIN":
+                    statusClass = "text-success";
+                    statusText = "WIN";
+                    break;
+                case "LOSS":
+                    statusClass = "text-danger";
+                    statusText = "LOSS";
+                    break;
+                case "DOGI":
+                    statusClass = "text-warning";
+                    statusText = "EMPATE";
+                    break;
+                default:
+                    statusClass = "text-white";
+                    statusText = "PENDENTE";
             }
 
-            const imageUrl = "/static/images/quotex.svg";
+            const tradeRow = `
+                <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>${new Date(trade.timestamp * 1000).toLocaleDateString("pt-BR")}</td>
+                    <td>${trade.asset_order || "N/A"}</td>
+                    <td>${balanceData.currency} ${trade.amount ? trade.amount.toFixed(2) : "--"}</td>
+                    <td>${balanceData.currency} ${trade.result ? trade.result.toFixed(2) : "--"}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                    <td><a class="btn btn-sm btn-primary" href="#">Detalhes</a></td>
+                </tr>
+            `;
 
-            const item = `
-                    <li class="product-item gap14">
-                        <div class="image">
-                            <img src="${imageUrl}" alt="${trade.asset_order || 'Trade'}">
-                        </div>
-                        <div class="flex items-center justify-between flex-grow">
-                            <div class="name">
-                                <span class="body-text">${trade.asset_order || "N/A"}</span>
-                            </div>
-                            <div class="body-text">${balanceData.currency} ${trade.amount ? trade.amount.toFixed(2) : "--"}</div>
-                            <div class="body-text">${trade.percent_profit || "--"}%</div>
-                            <div class="body-text">${balanceData.currency} ${trade.result ? trade.result.toFixed(2) : "--"}</div>
-                            <div class="${itemClass}">${statusText}</div>
-                        </div>
-                    </li>
-                `;
-            winLossTable.innerHTML += item;
+            winLossTable.innerHTML += tradeRow;
         });
     }
 };

@@ -3,67 +3,68 @@
 <html lang="pt-BR">
 <head>
     {% include 'includes/_head.html' %}
+    <title>Flash Bot - Home</title>
+
 </head>
-<body class="body">
+<body>
 
     <!-- #wrapper -->
-    <div id="wrapper">
-        <!-- #page -->
-        <div id="page" class="">
-            <!-- layout-wrap -->
-           <div class="layout-wrap">
-                <!-- preload -->
-                <div id="preload" class="preload-container">
-                    <div class="preloading">
-                        <span></span>
-                    </div>
-                </div>
-                
-                <div class="section-menu-left">
-                    {% include 'includes/_navbar.html' %}
-                </div>
-                    
-                <div class="section-content-right">
-                    {% include 'includes/_header.html' %}
-                    <div id="toast-container" ></div>
+    <div class="container-fluid position-relative d-flex p-0">
 
-                    <!-- main-content -->
-                    <div class="main-content">
-                        {% block content %}
-                        {% endblock %}
+        <div id="toast-container"></div>
 
-                        {% include 'includes/_footer.html' %}
-
-                    </div>
-
-                </div>
-            
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- Spinner End -->
+
+        <!-- Sidebar Start -->
+        {% include 'includes/_sidebar.html' %}
+        <!-- Sidebar End -->
+        
+        <!-- Content Start -->
+        <div class="content">
+
+            <!-- Navbar Start -->
+            {% include 'includes/_navbar.html' %}
+            <!-- Navbar End -->
+
+            <!-- main-content -->
+            {% block content %}
+            {% endblock %}
+
+            {% include 'includes/_footer.html' %}
+
+        </div>
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
 
 
     <!-- Javascript -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-select.min.js' %}"></script>
-    <script src="{% static 'js/zoom.js' %}"></script>
-    <script src="{% static 'js/jvectormap-1.2.2.min.js' %}"></script>
-    <script src="{% static 'js/jvectormap-us-lcc.js' %}"></script>
-    <script src="{% static 'js/jvectormap.js' %}"></script>
-    <script src="{% static 'js/apexcharts/apexcharts.js' %}"></script>
-    <script src="{% static 'js/apexcharts/line-chart-1.js' %}"></script>
-    <script src="{% static 'js/apexcharts/line-chart-2.js' %}"></script>
-    <script src="{% static 'js/apexcharts/line-chart-3.js' %}"></script>
-    <script src="{% static 'js/apexcharts/line-chart-4.js' %}"></script>
-    <script src="{% static 'js/apexcharts/line-chart-7.js' %}"></script>
-    <!-- <script src="{% static 'js/switcher.js' %}"></script> -->
-    <script src="{% static 'js/theme-settings.js' %}"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/chart/chart.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'lib/tempusdominus/js/moment.min.js' %}"></script>
+    <script src="{% static 'lib/tempusdominus/js/moment-timezone.min.js' %}"></script>
+    <script src="{% static 'lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+    <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>
+
     <script src="{% static 'js/toast.js' %}"></script>
     <script src="{% static 'js/actions-websocket.js' %}"></script>
     <script src="{% static 'js/websocket-trader.js' %}"></script>
     <script src="{% static 'js/websocket-notifications.js' %}"></script>
+    <script src="{% static 'js/active-deactive-bot.js' %}"></script>
 
 </body>
 </html>

@@ -1,273 +1,212 @@
-/**
-    * selectImages
-    * menuleft
-    * tabs
-    * progresslevel
-    * collapse_menu
-    * fullcheckbox
-    * showpass
-    * gallery
-    * coppy
-    * select_colors_theme
-    * icon_function
-    * box_search
-    * preloader
-*/
+(function ($) {
+    "use strict";
 
-; (function ($) {
-
-  "use strict";
-
-  var selectImages = function () {
-    if ($(".image-select").length > 0) {
-      const selectIMG = $(".image-select");
-      selectIMG.find("option").each((idx, elem) => {
-        const selectOption = $(elem);
-        const imgURL = selectOption.attr("data-thumbnail");
-        if (imgURL) {
-          selectOption.attr(
-            "data-content",
-            "<img src='%i'/> %s"
-              .replace(/%i/, imgURL)
-              .replace(/%s/, selectOption.text())
-          );
-        }
-      });
-      selectIMG.selectpicker();
-    }
-  };
-
-  var menuleft = function () {
-    if ($('div').hasClass('section-menu-left')) {
-      var bt =$(".section-menu-left").find(".has-children");
-      bt.on("click", function () {
-        var args = { duration: 200 };
-        if ($(this).hasClass("active")) {
-          $(this).children(".sub-menu").slideUp(args);
-          $(this).removeClass("active");
-        } else {
-          $(".sub-menu").slideUp(args);
-          $(this).children(".sub-menu").slideDown(args);
-          $(".menu-item.has-children").removeClass("active");
-          $(this).addClass("active");
-        }
-      });
-      $('.sub-menu-item').on('click', function(event){
-        event.stopPropagation();
-      });
-    }
-  };
-
-  var tabs = function(){
-    $('.widget-tabs').each(function(){
-        $(this).find('.widget-content-tab').children().hide();
-        $(this).find('.widget-content-tab').children(".active").show();
-        $(this).find('.widget-menu-tab').find('li').on('click',function(){
-            var liActive = $(this).index();
-            var contentActive=$(this).siblings().removeClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive);
-            contentActive.addClass('active').fadeIn("slow");
-            contentActive.siblings().removeClass('active');
-            $(this).addClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive).siblings().hide();
-        });
-    });
-  };
-
-  $('ul.dropdown-menu.has-content').on('click', function(event){
-    event.stopPropagation();
-  });
-  $('.button-close-dropdown').on('click', function(){
-    $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('show');
-    $(this).closest('.dropdown').find('.dropdown-menu').removeClass('show');
-  });
-
-  var progresslevel = function () {
-    if ($('div').hasClass('progress-level-bar')) {
-    var bars = document.querySelectorAll('.progress-level-bar > span');
-    setInterval(function(){
-    bars.forEach(function(bar){
-      var t1 = parseFloat(bar.dataset.progress);
-      var t2 = parseFloat(bar.dataset.max);
-      var getWidth = ( t1 / t2) * 100;
-      bar.style.width = getWidth + '%';
-    });
-    }, 500);
-  }}
-
-  var collapse_menu = function () {
-    $(".button-show-hide").on("click", function () {
-      $('.layout-wrap').toggleClass('full-width');
-    })
-  }
-
-  var fullcheckbox = function () {
-    $('.total-checkbox').on('click', function () {
-      if ( $(this).is(':checked') ) {
-        $(this).closest('.wrap-checkbox').find('.checkbox-item').prop('checked', true);
-      } else {
-        $(this).closest('.wrap-checkbox').find('.checkbox-item').prop('checked', false);
-      }
-    });
-  };
-
-  var showpass = function() {
-    $(".show-pass").on("click", function () {
-      $(this).toggleClass("active");
-      var input = $(this).parents(".password").find(".password-input");
-
-      if (input.attr("type") === "password") {
-        input.attr("type", "text");
-      } else if (input.attr("type") === "text") {
-        input.attr("type", "password");
-      }
-    });
-  }
-
-  var gallery = function() {
-    $(".button-list-style").on("click", function () {
-      $(".wrap-gallery-item").addClass("list");
-    });
-    $(".button-grid-style").on("click", function () {
-      $(".wrap-gallery-item").removeClass("list");
-    });
-  }
-
-  var coppy = function() {
-    $(".button-coppy").on("click", function () {
-      myFunction()
-    });
-    function myFunction() {
-      var copyText = document.getElementsByClassName("coppy-content");
-      navigator.clipboard.writeText(copyText.text);
-    }
-  }
-
-  var select_colors_theme = function () {
-    if ($('div').hasClass("select-colors-theme")) {
-      $(".select-colors-theme .item").on("click", function (e) {
-        $(this).parents(".select-colors-theme").find(".active").removeClass("active");
-        $(this).toggleClass("active");
-      })
-    }
-  }
-
-  var icon_function = function () {
-    if ($('div').hasClass("list-icon-function")) {
-      $(".list-icon-function .trash").on("click", function (e) {
-        $(this).parents(".product-item").remove();
-        $(this).parents(".attribute-item").remove();
-        $(this).parents(".countries-item").remove();
-        $(this).parents(".user-item").remove();
-        $(this).parents(".roles-item").remove();
-      })
-    }
-  }
-
-  var box_search=function(){
-        
-    $(document).on('click',function(e){
-      var clickID=e.target.id;if((clickID!=='s')){
-          $('.box-content-search').removeClass('active');
-      }});
-    $(document).on('click',function(e){
-        var clickID=e.target.class;if((clickID!=='a111')){
-            $('.show-search').removeClass('active');
-    }});
-        
-    $('.show-search').on('click',function(event){
-      event.stopPropagation();}
-    );
-    $('.search-form').on('click',function(event){
-      event.stopPropagation();}
-    );
-    var input =  $('.header-dashboard').find('.form-search').find('input');
-    input.on('input', function() {
-      if ($(this).val().trim() !== '') {
-        $('.box-content-search').addClass('active');
-      } else {
-        $('.box-content-search').removeClass('active');
-      }
-    });
-   
-  }
-
-  var retinaLogos = function() {
-    var retina = window.devicePixelRatio > 1 ? true : false;
-      if(retina) {
-        if ($(".dark-theme").length > 0) {
-          $('#logo_header').attr({src:'images/logo/logo-dark.png',width:'154px',height:'52px'});
-        } else {
-          $('#logo_header').attr({src:'images/logo/logo-dark.png',width:'154px',height:'52px'});
-        }
-      }
-  };  
-
-  var preloader = function () {
-    setTimeout(function () {
-    $("#preload").fadeOut("slow", function () {
-        $(this).remove();
-    });
-    }, 1000);
-  };
-
-  var variant_picker = function () {
-    if ($(".variant-picker-item").length) {
-      $(".variant-picker-item label").on("click", function (e) {
-        $(this)
-          .closest(".variant-picker-item")
-          .find(".variant-picker-label-value")
-          .text($(this).data("value"));
-      });
-    }
-};
-
-var btnQuantity = function () {
-    $(".minus-btn").on("click", function (e) {
-      e.preventDefault();
-      var $this = $(this);
-      var $input = $this.closest("div").find("input");
-      var value = parseInt($input.val());
-
-      if (value > 0) {
-        value = value - 1;
-      }
-
-      $input.val(value);
-    });
-
-    $(".plus-btn").on("click", function (e) {
-      e.preventDefault();
-      var $this = $(this);
-      var $input = $this.closest("div").find("input");
-      var value = parseInt($input.val());
-
-      if (value > -1) {
-        value = value + 1;
-      }
-
-      $input.val(value);
-    });
-};
-
-
-  // Dom Ready
-  $(function () {
-    selectImages();
-    menuleft();
-    tabs();
-    progresslevel();
-    collapse_menu();
-    fullcheckbox();
-    showpass();
-    gallery();
-    coppy();
-    select_colors_theme();
-    icon_function();
-    box_search();
-    retinaLogos();
-    variant_picker();
-    btnQuantity();
-    preloader();
+    // Spinner
+    var spinner = function () {
+        setTimeout(function () {
+            if ($('#spinner').length > 0) {
+                $('#spinner').removeClass('show');
+            }
+        }, 1);
+    };
+    spinner();
     
-  });
+    
+    // Back to top button
+    $(window).scroll(function () {
+        if ($(this).scrollTop() > 300) {
+            $('.back-to-top').fadeIn('slow');
+        } else {
+            $('.back-to-top').fadeOut('slow');
+        }
+    });
+    $('.back-to-top').click(function () {
+        $('html, body').animate({scrollTop: 0}, 1500, 'easeInOutExpo');
+        return false;
+    });
 
+
+    // Sidebar Toggler
+    $('.sidebar-toggler').click(function () {
+        $('.sidebar, .content').toggleClass("open");
+        return false;
+    });
+
+
+    // Progress Bar
+    $('.pg-bar').waypoint(function () {
+        $('.progress .progress-bar').each(function () {
+            $(this).css("width", $(this).attr("aria-valuenow") + '%');
+        });
+    }, {offset: '80%'});
+
+
+    // Calender
+    $('#calender').datetimepicker({
+        inline: true,
+        format: 'L'
+    });
+
+
+    // Testimonials carousel
+    $(".testimonial-carousel").owlCarousel({
+        autoplay: true,
+        smartSpeed: 1000,
+        items: 1,
+        dots: true,
+        loop: true,
+        nav : false
+    });
+
+
+    // Chart Global Color
+    Chart.defaults.color = "#6C7293";
+    Chart.defaults.borderColor = "#000000";
+
+
+    // Worldwide Sales Chart
+    var ctx1 = $("#worldwide-sales").get(0).getContext("2d");
+    var myChart1 = new Chart(ctx1, {
+        type: "bar",
+        data: {
+            labels: ["2016", "2017", "2018", "2019", "2020", "2021", "2022"],
+            datasets: [{
+                    label: "USA",
+                    data: [15, 30, 55, 65, 60, 80, 95],
+                    backgroundColor: "rgba(235, 22, 22, .7)"
+                },
+                {
+                    label: "UK",
+                    data: [8, 35, 40, 60, 70, 55, 75],
+                    backgroundColor: "rgba(235, 22, 22, .5)"
+                },
+                {
+                    label: "AU",
+                    data: [12, 25, 45, 55, 65, 70, 60],
+                    backgroundColor: "rgba(235, 22, 22, .3)"
+                }
+            ]
+            },
+        options: {
+            responsive: true
+        }
+    });
+
+
+    // Salse & Revenue Chart
+    var ctx2 = $("#salse-revenue").get(0).getContext("2d");
+    var myChart2 = new Chart(ctx2, {
+        type: "line",
+        data: {
+            labels: ["2016", "2017", "2018", "2019", "2020", "2021", "2022"],
+            datasets: [{
+                    label: "Salse",
+                    data: [15, 30, 55, 45, 70, 65, 85],
+                    backgroundColor: "rgba(235, 22, 22, .7)",
+                    fill: true
+                },
+                {
+                    label: "Revenue",
+                    data: [99, 135, 170, 130, 190, 180, 270],
+                    backgroundColor: "rgba(235, 22, 22, .5)",
+                    fill: true
+                }
+            ]
+            },
+        options: {
+            responsive: true
+        }
+    });
+    
+
+
+    // Single Line Chart
+    var ctx3 = $("#line-chart").get(0).getContext("2d");
+    var myChart3 = new Chart(ctx3, {
+        type: "line",
+        data: {
+            labels: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
+            datasets: [{
+                label: "Salse",
+                fill: false,
+                backgroundColor: "rgba(235, 22, 22, .7)",
+                data: [7, 8, 8, 9, 9, 9, 10, 11, 14, 14, 15]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+
+    // Single Bar Chart
+    var ctx4 = $("#bar-chart").get(0).getContext("2d");
+    var myChart4 = new Chart(ctx4, {
+        type: "bar",
+        data: {
+            labels: ["Italy", "France", "Spain", "USA", "Argentina"],
+            datasets: [{
+                backgroundColor: [
+                    "rgba(235, 22, 22, .7)",
+                    "rgba(235, 22, 22, .6)",
+                    "rgba(235, 22, 22, .5)",
+                    "rgba(235, 22, 22, .4)",
+                    "rgba(235, 22, 22, .3)"
+                ],
+                data: [55, 49, 44, 24, 15]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+
+    // Pie Chart
+    var ctx5 = $("#pie-chart").get(0).getContext("2d");
+    var myChart5 = new Chart(ctx5, {
+        type: "pie",
+        data: {
+            labels: ["Italy", "France", "Spain", "USA", "Argentina"],
+            datasets: [{
+                backgroundColor: [
+                    "rgba(235, 22, 22, .7)",
+                    "rgba(235, 22, 22, .6)",
+                    "rgba(235, 22, 22, .5)",
+                    "rgba(235, 22, 22, .4)",
+                    "rgba(235, 22, 22, .3)"
+                ],
+                data: [55, 49, 44, 24, 15]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+
+    // Doughnut Chart
+    var ctx6 = $("#doughnut-chart").get(0).getContext("2d");
+    var myChart6 = new Chart(ctx6, {
+        type: "doughnut",
+        data: {
+            labels: ["Italy", "France", "Spain", "USA", "Argentina"],
+            datasets: [{
+                backgroundColor: [
+                    "rgba(235, 22, 22, .7)",
+                    "rgba(235, 22, 22, .6)",
+                    "rgba(235, 22, 22, .5)",
+                    "rgba(235, 22, 22, .4)",
+                    "rgba(235, 22, 22, .3)"
+                ],
+                data: [55, 49, 44, 24, 15]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    
 })(jQuery);
+
