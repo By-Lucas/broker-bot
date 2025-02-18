@@ -1,124 +1,83 @@
-<!-- Widgets Start -->
 <div class="container-fluid pt-4 px-4">
     <div class="row g-4">
-        <div class="col-sm-12 col-md-6 col-xl-4">
-            <div class="h-100 bg-secondary rounded p-4">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="mb-0">Messages</h6>
-                    <a href="">Show All</a>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-3">
-                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt=""
-                        style="width: 40px; height: 40px;">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-0">Jhon Doe</h6>
-                            <small>15 minutes ago</small>
-                        </div>
-                        <span>Short message goes here...</span>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-3">
-                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt=""
-                        style="width: 40px; height: 40px;">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-0">Jhon Doe</h6>
-                            <small>15 minutes ago</small>
-                        </div>
-                        <span>Short message goes here...</span>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-3">
-                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt=""
-                        style="width: 40px; height: 40px;">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-0">Jhon Doe</h6>
-                            <small>15 minutes ago</small>
-                        </div>
-                        <span>Short message goes here...</span>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center pt-3">
-                    <img class="rounded-circle flex-shrink-0" src="img/user.jpg" alt=""
-                        style="width: 40px; height: 40px;">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-0">Jhon Doe</h6>
-                            <small>15 minutes ago</small>
-                        </div>
-                        <span>Short message goes here...</span>
-                    </div>
+        <!-- Lucros dos Últimos 5 Dias -->
+        <div class="col-md-6">
+            <div class="bg-secondary rounded p-4">
+                <h6 class="mb-4"><i class="fa fa-money-bill-wave text-success"></i> Lucros dos Últimos 15 Dias</h6>
+                <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr class="text-white">
+                                <th scope="col">Data</th>
+                                <th scope="col">Lucro (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for profit in daily_profits|slice:":15" %}
+                            <tr>
+                                <td>{{ profit.created_at__date }}</td>
+                                <td class="{% if profit.total_profit > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    R$ {{ profit.total_profit|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center">Sem dados de lucros recentes.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-6 col-xl-4">
-            <div class="h-100 bg-secondary rounded p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h6 class="mb-0">Calender</h6>
-                    <a href="">Show All</a>
-                </div>
-                <div id="calender"></div>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-6 col-xl-4">
-            <div class="h-100 bg-secondary rounded p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h6 class="mb-0">To Do List</h6>
-                    <a href="">Show All</a>
-                </div>
-                <div class="d-flex mb-2">
-                    <input class="form-control bg-dark border-0" type="text" placeholder="Enter task">
-                    <button type="button" class="btn btn-primary ms-2">Add</button>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-2">
-                    <input class="form-check-input m-0" type="checkbox">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <span>Short task goes here...</span>
-                            <button class="btn btn-sm"><i class="fa fa-times"></i></button>
-                        </div>
+
+        <!-- Top 50 Traders do Dia (Mostra Apenas 5 e Scroll) -->
+        <div class="col-md-6">
+            <div class="bg-secondary rounded p-4">
+                <h6 class="mb-4">
+                    <i class="fa fa-trophy text-warning"></i> Top 50 Traders
+                    <button class="btn btn-sm btn-success mx-3" onclick="sortTraders('desc')"> Lucro</button>
+                    <button class="btn btn-sm btn-danger" onclick="sortTraders('asc')">Prejuízo</button>
+                </h6>
+              
+        
+                <div class="list-group" id="trader-list" style="max-height: 220px; overflow-y: auto;">
+                    {% for trader in top_traders|slice:":50" %}
+                    <div class="list-group-item bg-dark text-white d-flex justify-content-between">
+                        <span>
+                            <i class="fa fa-user {% if trader.name == request.user.email %}text-primary{% else %}text-info{% endif %}"></i>
+                            {{ trader.name }}
+                        </span>
+                        <span class="{% if trader.profit_amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                            R$ <span class="profit-amount">{{ trader.profit_amount|floatformat:2 }}</span> 
+                            ({{ trader.profit_percentage }}%)
+                        </span>
                     </div>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-2">
-                    <input class="form-check-input m-0" type="checkbox">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <span>Short task goes here...</span>
-                            <button class="btn btn-sm"><i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-2">
-                    <input class="form-check-input m-0" type="checkbox" checked>
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <span><del>Short task goes here...</del></span>
-                            <button class="btn btn-sm text-primary"><i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center border-bottom py-2">
-                    <input class="form-check-input m-0" type="checkbox">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <span>Short task goes here...</span>
-                            <button class="btn btn-sm"><i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center pt-2">
-                    <input class="form-check-input m-0" type="checkbox">
-                    <div class="w-100 ms-3">
-                        <div class="d-flex w-100 align-items-center justify-content-between">
-                            <span>Short task goes here...</span>
-                            <button class="btn btn-sm"><i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
+                    {% empty %}
+                    <div class="list-group-item text-center">Nenhum trader listado.</div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Widgets End -->
+
+<script>
+    function sortTraders(order) {
+        const traderList = document.getElementById("trader-list");
+        const traders = Array.from(traderList.getElementsByClassName("list-group-item"));
+    
+        traders.sort((a, b) => {
+            // Obtendo os valores do lucro (positivo ou negativo)
+            const profitA = parseFloat(a.querySelector(".profit-amount").innerText.replace(",", "."));
+            const profitB = parseFloat(b.querySelector(".profit-amount").innerText.replace(",", "."));
+    
+            // Ordenação baseada no valor absoluto
+            return order === "desc" ? profitB - profitA : profitA - profitB;
+        });
+    
+        // Atualiza a exibição dos traders no DOM
+        traders.forEach(trader => traderList.appendChild(trader));
+    }
+</script>
+    

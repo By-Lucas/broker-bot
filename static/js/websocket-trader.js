@@ -87,7 +87,7 @@ socket.onmessage = function (event) {
                     <td>${balanceData.currency} ${trade.amount ? trade.amount.toFixed(2) : "--"}</td>
                     <td>${balanceData.currency} ${trade.result ? trade.result.toFixed(2) : "--"}</td>
                     <td class="${statusClass}">${statusText}</td>
-                    <td>${trade.close_time}</td>
+                    <td>${trade.created_at}</td>
                     <td><a class="btn btn-sm btn-primary" href="#">Detalhes</a></td>
                 </tr>
             `;
