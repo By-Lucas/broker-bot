@@ -48,19 +48,24 @@
 </div>
 <!-- Sale & Revenue End -->
 
+<!-- Notificação de Lucro/Prejuízo -->
+<div id="profit-notification" class="container-fluid text-center py-3 mt-3 d-none" style="position: relative; top: 0; z-index: 1000;">
+    <h5 class="mb-0 text-white" id="profit-message"></h5>
+</div>
+
 <!-- Buttons & Notifications -->
 <div class="container-fluid pt-4 px-4">
-    <div id="buttoms">
-        <button href="#!" id="start-bot" class="btn btn-success text">
+    <div id="buttoms" class="gap-3">
+        <button id="start-bot" class="btn btn-success">
             <i class="fas fa-play"></i> Iniciar Robô
-         </button>
-         <button href="#!" id="pause-bot" class="btn btn-primary text">
-             <i class="fas fa-pause"></i> Pausar Robô
-         </button>
+        </button>
+        <button id="pause-bot" class="btn btn-primary">
+            <i class="fas fa-pause"></i> Pausar Robô
+        </button>
     </div>
     <div id="notifications"></div>
 </div>
-<!-- End Buttons & Notifications -->
+
 
 <!-- Tabela de Vendas Recentes -->
 <div class="container-fluid pt-4 px-4">

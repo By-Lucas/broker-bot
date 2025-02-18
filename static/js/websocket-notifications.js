@@ -1,6 +1,7 @@
-
 document.addEventListener("DOMContentLoaded", function () {
-    const notificationsContainer = document.querySelector(".wg-chart-default-aviso");
+    const notificationsContainer = document.getElementById("profit-notification");
+    const profitNotification = document.getElementById("profit-notification");
+    const profitMessage = document.getElementById("profit-message");
     const startBotButton = document.getElementById("start-bot");
     const pauseBotButton = document.getElementById("pause-bot");
 
@@ -19,53 +20,62 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
+        // Oculta notificações quando necessário
         if (data.type === "clean_notification") {
-            notificationsContainer.style.display = "none"
+            notificationsContainer.style.display = "none";
+            profitNotification.classList.add("d-none");
             return;
         }
-        
 
         let notificationHTML = "";
         let shouldDisableBot = false; // Flag para definir se o robô será desativado
 
         if (data.type === "stop_gain" || data.type === "stop_loss") {
-            // Stop Gain / Stop Loss atingido
-            const color = data.type === "stop_gain" ? "#28a745" : "#dc3545"; // Verde para Gain, Vermelho para Loss
+            // 🔥 Stop Gain ou Stop Loss
+            const color = data.type === "stop_gain" ? "#28a745" : "#dc3545"; // Verde para ganho, Vermelho para perda
+            const bgColor = data.type === "stop_gain" ? "bg-success" : "bg-danger";
+
             notificationHTML = `
                 <div class="flex items-center justify-between">
-                    <h6 class="white-color" style="color: ${color};">${data.title} - R$ ${data.value ? data.value.toFixed(2) : "0.00"}</h6>
+                    <h6 class="white-color" >${data.title} - R$ ${data.value ? data.value.toFixed(2) : "0.00"}</h6>
                 </div>
             `;
-            shouldDisableBot = false; // Define para desativar o robô
+
+            // 🎯 Atualiza a barra central com lucro/prejuízo
+            profitMessage.innerHTML = `${data.title} - R$ ${data.value ? data.value.toFixed(2) : "0.00"}`;
+            profitNotification.classList.remove("bg-success", "bg-danger", "d-none");
+            profitNotification.classList.add(bgColor);
+
+            shouldDisableBot = false;
         } else if (data.type === "maximum_profit") {
-            // Lucro Máximo Atingido
+            // 🔥 Lucro Máximo Atingido
             notificationHTML = `
                 <div class="flex items-center justify-between">
-                    <h6 class="white-color" style="color: #ffc107;">${data.title}</h6>
+                    <h6 class="white-color">${data.title}</h6>
                     ${data.url_redirect ? `<a href="${data.url_redirect}" class="tf-button w208">Falar com Suporte</a>` : ""}
                 </div>
                 ${data.description ? `<p style="color: #ffff;">${data.description}</p>` : ""}
             `;
-            shouldDisableBot = true; // Define para desativar o robô
+
+            shouldDisableBot = true;
         } else {
-            // Notificação genérica
+            // 🔹 Notificação Genérica
             notificationHTML = `
                 <div class="flex items-center justify-between">
-                    <h6 class="white-color" style="color: #6c757d;">${data.title}</h6>
+                    <h6 class="white-color">${data.title}</h6>
                     ${data.url_redirect ? `<a href="${data.url_redirect}" class="tf-button w208">Ação</a>` : ""}
                 </div>
                 ${data.description ? `<p style="color: #ffff;">${data.description}</p>` : ""}
             `;
         }
-        
-        if (notificationsContainer != null){
-            // Exibe a notificação
+
+        if (notificationsContainer != null) {
+            // Exibe a notificação normal
             notificationsContainer.style.display = "block";
             notificationsContainer.innerHTML = notificationHTML;
         }
 
-        // 🔥 Se for uma notificação de "Stop Win", "Stop Loss" ou "Maximum Profit", desabilita os botões do robô
+        // 🔥 Se for "Stop Gain", "Stop Loss" ou "Maximum Profit", desabilita os botões do robô
         if (shouldDisableBot) {
             disableBotButtons();
         }
@@ -82,13 +92,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // 🔥 Atualiza a opacidade e cor dos botões para indicar que estão desativados
         startBotButton.querySelector(".text").style.opacity = "0.5";
-        startBotButton.querySelector(".icon i").style.opacity = "0.5";
         startBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
-        startBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
 
         pauseBotButton.querySelector(".text").style.opacity = "0.5";
-        pauseBotButton.querySelector(".icon i").style.opacity = "0.5";
         pauseBotButton.querySelector(".text").style.color = "#6c757d"; // Cinza desativado
-        pauseBotButton.querySelector(".icon i").style.color = "#6c757d"; // Ícone cinza
     }
 });
